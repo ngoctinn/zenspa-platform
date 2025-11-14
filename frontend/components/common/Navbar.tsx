@@ -6,11 +6,13 @@ import { UserProfileMenu } from "@/components/auth/UserProfileMenu";
 import { supabase } from "@/utils/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
   const [notificationCount] = useState(5); // Mock count, sẽ thay bằng API sau
+  const pathname = usePathname();
 
   useEffect(() => {
     const getUser = async () => {
@@ -32,13 +34,11 @@ const Navbar = () => {
           {/* Logo and Navigation */}
           <div className="flex items-center space-x-8">
             <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary-foreground rounded-full flex items-center justify-center">
-                  <span className="text-primary font-bold text-sm">ZS</span>
-                </div>
-                <span className="font-bold text-2xl text-primary-foreground">
-                  ZenSpa
-                </span>
+              <Link
+                href="/"
+                className="font-bold text-2xl text-primary-foreground"
+              >
+                ZENSPA
               </Link>
             </div>
 
@@ -46,7 +46,9 @@ const Navbar = () => {
             <nav className="hidden md:flex items-center space-x-8">
               <Link
                 href="/"
-                className="font-semibold relative transition-all duration-200 ease-in-out group"
+                className={`font-semibold relative transition-all duration-200 ease-in-out group ${
+                  pathname === "/" ? "font-bold" : "opacity-70"
+                }`}
               >
                 Trang chủ
                 <svg
@@ -79,7 +81,7 @@ const Navbar = () => {
               </Link>
               <Link
                 href="#services"
-                className="font-semibold relative transition-all duration-200 ease-in-out group"
+                className="font-semibold opacity-70 relative transition-all duration-200 ease-in-out group"
               >
                 Dịch vụ
                 <svg
@@ -112,7 +114,7 @@ const Navbar = () => {
               </Link>
               <Link
                 href="#about"
-                className="font-semibold relative transition-all duration-200 ease-in-out flex items-center group"
+                className="font-semibold opacity-70 relative transition-all duration-200 ease-in-out flex items-center group"
               >
                 Về chúng tôi
                 <svg
@@ -145,7 +147,7 @@ const Navbar = () => {
               </Link>
               <Link
                 href="#contact"
-                className="font-semibold relative transition-all duration-200 ease-in-out group"
+                className="font-semibold opacity-70 relative transition-all duration-200 ease-in-out group"
               >
                 Liên hệ
                 <svg

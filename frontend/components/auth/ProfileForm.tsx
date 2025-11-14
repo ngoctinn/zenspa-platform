@@ -12,6 +12,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
+import {
+  profileSchema,
+  type ProfileFormData,
+} from "@/schemaValidations/profileSchema";
 import { supabase } from "@/utils/supabaseClient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@supabase/supabase-js";
@@ -25,16 +29,6 @@ import {
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const profileSchema = z.object({
-  email: z.string().email().optional(),
-  fullName: z.string().min(1, "Họ và tên là bắt buộc"),
-  phone: z.string().min(10, "Số điện thoại phải có ít nhất 10 ký tự"),
-  birthDate: z.string().optional(),
-});
-
-type ProfileFormData = z.infer<typeof profileSchema>;
 
 export default function ProfileForm() {
   const [user, setUser] = useState<User | null>(null);

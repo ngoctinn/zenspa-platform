@@ -1,4 +1,14 @@
-import { CalendarIcon, LogOutIcon, UserIcon } from "lucide-react";
+"use client";
+
+import {
+  BellIcon,
+  CalendarIcon,
+  LogOutIcon,
+  PackageIcon,
+  UserIcon,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,12 +43,15 @@ export const UserProfileMenu = ({ user, onLogout }: UserProfileMenuProps) => {
           size="icon"
           className="overflow-hidden rounded-full"
         >
-          <img
+          <Image
             src={
               avatarUrl ||
               "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png"
             }
             alt={displayName}
+            width={32}
+            height={32}
+            className="h-full w-full object-cover"
           />
         </Button>
       </DropdownMenuTrigger>
@@ -51,13 +64,29 @@ export const UserProfileMenu = ({ user, onLogout }: UserProfileMenuProps) => {
 
         <DropdownMenuGroup>
           {/* 4. Đây là cách chuẩn để thêm icon trong Shadcn */}
-          <DropdownMenuItem>
-            <UserIcon className="mr-2 h-4 w-4" />
-            <span>Hồ sơ</span>
+          <DropdownMenuItem asChild>
+            <Link href="/account/profile">
+              <UserIcon className="mr-2 h-4 w-4" />
+              <span>Hồ sơ</span>
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            <span>Lịch hẹn của tôi</span>
+          <DropdownMenuItem asChild>
+            <Link href="/account/appointments">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              <span>Lịch hẹn của tôi</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/account/services">
+              <PackageIcon className="mr-2 h-4 w-4" />
+              <span>Liệu trình</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/account/notifications">
+              <BellIcon className="mr-2 h-4 w-4" />
+              <span>Thông báo</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
