@@ -79,7 +79,7 @@ const HeroSection = () => {
               <Image
                 width={200}
                 height={200}
-                src="https://i.pinimg.com/736x/f0/d2/77/f0d2774f08cee3574f17049b68b599d7.jpg"
+                src="https://i.pinimg.com/736x/9f/3e/98/9f3e987e49a27f81f04e02a7c6bc9f16.jpg"
                 alt="Spa treatment"
                 className="w-full h-full object-cover rounded-lg shadow-lg animate-in fade-in delay-100 transition-all duration-300 hover:scale-103"
               />

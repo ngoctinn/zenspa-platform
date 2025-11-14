@@ -1,7 +1,30 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
+import AuthActions from "@/components/auth/AuthActions";
+import NotificationIcon from "@/components/auth/NotificationIcon";
+import { UserProfileMenu } from "@/components/auth/UserProfileMenu";
+import { supabase } from "@/utils/supabaseClient";
+import { User } from "@supabase/supabase-js";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const Navbar = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [notificationCount] = useState(5); // Mock count, sẽ thay bằng API sau
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+    };
+    getUser();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -154,18 +177,15 @@ const Navbar = () => {
             </Link>
           </nav>
 
-          {/* Actions & User Area - Trạng thái chưa đăng nhập */}
-          <div className="flex items-center space-x-4">
-            <Link
-              href="/signin"
-              className="text-primary-foreground hover:underline transition-all duration-200 ease-in-out"
-            >
-              Đăng nhập
-            </Link>
-            <Button className="bg-white text-primary hover:bg-white/90" asChild>
-              <Link href="/signup">Đăng ký</Link>
-            </Button>
-          </div>
+          {/* Actions & User Area */}
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <NotificationIcon count={notificationCount} />
+              <UserProfileMenu user={user} onLogout={handleLogout} />
+            </div>
+          ) : (
+            <AuthActions />
+          )}
         </div>
       </div>
     </header>
