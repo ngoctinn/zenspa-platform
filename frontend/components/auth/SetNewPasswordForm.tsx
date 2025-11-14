@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { LoaderCircleIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -26,7 +27,6 @@ import { supabase } from "@/utils/supabaseClient";
 
 const SetNewPasswordForm = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isValidSession, setIsValidSession] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,40 +41,32 @@ const SetNewPasswordForm = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const accessToken = searchParams.get("access_token");
-      const refreshToken = searchParams.get("refresh_token");
-      const type = searchParams.get("type");
-
-      if (!accessToken || !refreshToken || type !== "recovery") {
-        showToast({
-          message: "Link reset mật khẩu không hợp lệ hoặc đã hết hạn",
-          variant: "error",
-        });
-        router.push("/signin");
-        return;
-      }
-
-      // Set session with tokens from URL
-      const { error } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
+      // Listen for auth state changes
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === "PASSWORD_RECOVERY" && session) {
+          setIsValidSession(true);
+          setIsLoading(false);
+        }
       });
 
-      if (error) {
-        showToast({
-          message: "Phiên reset mật khẩu không hợp lệ",
-          variant: "error",
-        });
-        router.push("/signin");
-        return;
+      // Check current session
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        setIsValidSession(true);
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
       }
 
-      setIsValidSession(true);
-      setIsLoading(false);
+      return () => subscription.unsubscribe();
     };
 
     checkSession();
-  }, [searchParams, router]);
+  }, []);
 
   const onSubmit = async (data: SetNewPasswordFormData) => {
     try {
@@ -167,7 +159,14 @@ const SetNewPasswordForm = () => {
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              {authMessages.labels.setNewPassword}
+              {form.formState.isSubmitting ? (
+                <>
+                  <LoaderCircleIcon className="animate-spin mr-2 h-4 w-4" />
+                  Đang đặt mật khẩu...
+                </>
+              ) : (
+                authMessages.labels.setNewPassword
+              )}
             </Button>
           </form>
         </Form>

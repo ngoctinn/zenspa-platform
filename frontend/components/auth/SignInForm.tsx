@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircleIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { InputPassword } from "@/components/common/InputPassword";
@@ -140,7 +141,14 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              {authMessages.labels.signIn}
+              {form.formState.isSubmitting ? (
+                <>
+                  <LoaderCircleIcon className="animate-spin mr-2 h-4 w-4" />
+                  Đang đăng nhập...
+                </>
+              ) : (
+                authMessages.labels.signIn
+              )}
             </Button>
           </form>
         </Form>

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -167,7 +168,14 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
                 className="w-full"
                 disabled={form.formState.isSubmitting}
               >
-                {authMessages.labels.signUp}
+                {form.formState.isSubmitting ? (
+                  <>
+                    <LoaderCircleIcon className="animate-spin mr-2 h-4 w-4" />
+                    Đang đăng ký...
+                  </>
+                ) : (
+                  authMessages.labels.signUp
+                )}
               </Button>
             </form>
           </Form>

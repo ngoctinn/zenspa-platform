@@ -54,10 +54,19 @@ export async function middleware(request: NextRequest) {
   );
 
   if (isAuthRoute && user) {
-    // Redirect to home if already authenticated
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
+    // Allow access to /reset-password with tokens for password reset
+    const isResetPasswordWithTokens =
+      request.nextUrl.pathname === "/reset-password" &&
+      request.nextUrl.searchParams.has("access_token") &&
+      request.nextUrl.searchParams.has("type") &&
+      request.nextUrl.searchParams.get("type") === "recovery";
+
+    if (!isResetPasswordWithTokens) {
+      // Redirect to home if already authenticated and not resetting password
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
   }
 
   // Allow access to public routes (like /) and auth routes
