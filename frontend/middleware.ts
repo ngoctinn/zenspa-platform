@@ -54,9 +54,9 @@ export async function middleware(request: NextRequest) {
   );
 
   if (isAuthRoute && user) {
-    // Redirect to dashboard or home if already authenticated
+    // Redirect to home if already authenticated
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/";
     return NextResponse.redirect(url);
   }
 

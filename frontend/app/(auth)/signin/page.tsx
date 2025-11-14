@@ -9,7 +9,7 @@ const SignInPage = () => {
   const router = useRouter();
 
   const handleSignInSuccess = () => {
-    router.push("/dashboard"); // Redirect to dashboard after sign in
+    router.push("/"); // Redirect to home after sign in
   };
 
   const handleForgotPassword = () => {
