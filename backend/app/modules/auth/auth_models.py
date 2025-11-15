@@ -9,9 +9,7 @@ Tables:
 
 from datetime import datetime
 from uuid import UUID
-import sqlalchemy as sa
-from sqlmodel import SQLModel, Field, Column
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID, JSONB, INET
+from sqlmodel import SQLModel, Field
 import uuid as uuid_module
 
 
@@ -27,12 +25,11 @@ class Profile(SQLModel, table=True):
     id: UUID = Field(
         default_factory=uuid_module.uuid4,
         primary_key=True,
-        sa_column=Column(PG_UUID(as_uuid=True)),
         description="Unique profile ID"
     )
     user_id: UUID = Field(
-        sa_column=Column(PG_UUID(as_uuid=True), nullable=False, unique=True),
         foreign_key="auth.users.id",
+        unique=True,
         description="Foreign key to Supabase auth.users"
     )
     full_name: str | None = Field(
@@ -42,7 +39,6 @@ class Profile(SQLModel, table=True):
     )
     avatar_url: str | None = Field(
         default=None,
-        sa_column=Column(sa.Text),
         description="Avatar image URL (optional)"
     )
     created_at: datetime = Field(
@@ -80,11 +76,9 @@ class UserRole(SQLModel, table=True):
     id: UUID = Field(
         default_factory=uuid_module.uuid4,
         primary_key=True,
-        sa_column=Column(PG_UUID(as_uuid=True)),
         description="Unique role assignment ID"
     )
     user_id: UUID = Field(
-        sa_column=Column(PG_UUID(as_uuid=True), nullable=False),
         foreign_key="auth.users.id",
         description="Foreign key to Supabase auth.users"
     )
@@ -98,7 +92,6 @@ class UserRole(SQLModel, table=True):
     )
     assigned_by: UUID | None = Field(
         default=None,
-        sa_column=Column(PG_UUID(as_uuid=True)),
         foreign_key="auth.users.id",
         description="User ID of admin who assigned this role (NULL for system-assigned)"
     )
@@ -133,12 +126,10 @@ class AuditLog(SQLModel, table=True):
     id: UUID = Field(
         default_factory=uuid_module.uuid4,
         primary_key=True,
-        sa_column=Column(PG_UUID(as_uuid=True)),
         description="Unique audit log ID"
     )
     user_id: UUID | None = Field(
         default=None,
-        sa_column=Column(PG_UUID(as_uuid=True)),
         foreign_key="auth.users.id",
         description="User ID who triggered event (NULL for system events)"
     )
@@ -148,12 +139,10 @@ class AuditLog(SQLModel, table=True):
     )
     metadata: dict | None = Field(
         default=None,
-        sa_column=Column(JSONB),
         description="Event-specific metadata (varies by event_type)"
     )
     ip_address: str | None = Field(
         default=None,
-        sa_column=Column(INET),
         description="Client IP address"
     )
     user_agent: str | None = Field(
