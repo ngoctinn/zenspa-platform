@@ -23,6 +23,8 @@ def upgrade() -> None:
         sa.Column('id', postgresql.UUID(as_uuid=True), 
                  server_default=sa.text('gen_random_uuid()'), primary_key=True),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, unique=True),
+        sa.Column('full_name', sa.String(255)),
+        sa.Column('avatar_url', sa.Text()),
         sa.Column('created_at', sa.DateTime(), 
                  server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(), 
@@ -40,12 +42,17 @@ def upgrade() -> None:
         sa.Column('role', sa.String(50), nullable=False),
         sa.Column('assigned_at', sa.DateTime(), 
                  server_default=sa.text('now()'), nullable=False),
+        sa.Column('assigned_by', postgresql.UUID(as_uuid=True)),
+        sa.Column('is_primary', sa.Boolean(), server_default=sa.text('false'), nullable=False),
         sa.ForeignKeyConstraint(['user_id'], ['auth.users.id'], ondelete='CASCADE'),
-        sa.CheckConstraint("role IN ('customer', 'staff', 'admin')", name='valid_roles'),
+        sa.ForeignKeyConstraint(['assigned_by'], ['auth.users.id'], ondelete='SET NULL'),
+        sa.CheckConstraint("role IN ('customer', 'receptionist', 'technician', 'admin')", name='valid_roles'),
         sa.UniqueConstraint('user_id', 'role', name='unique_user_role'),
     )
     op.create_index('idx_user_roles_user_id', 'user_roles', ['user_id'])
     op.create_index('idx_user_roles_role', 'user_roles', ['role'])
+    op.create_index('idx_user_roles_primary', 'user_roles', ['user_id'], 
+                   postgresql_where=sa.text('is_primary = true'))
 
     # 3. Create customers table
     op.create_table(
@@ -65,7 +72,25 @@ def upgrade() -> None:
     )
     op.create_index('idx_customers_user_id', 'customers', ['user_id'])
 
-    # 4. Create staff table
+    # 4. Create audit_logs table (Security event tracking)
+    op.create_table(
+        'audit_logs',
+        sa.Column('id', postgresql.UUID(as_uuid=True), 
+                 server_default=sa.text('gen_random_uuid()'), primary_key=True),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True)),
+        sa.Column('event_type', sa.String(100), nullable=False),
+        sa.Column('metadata', postgresql.JSONB(), nullable=True),
+        sa.Column('ip_address', postgresql.INET()),
+        sa.Column('user_agent', sa.Text()),
+        sa.Column('created_at', sa.DateTime(), 
+                 server_default=sa.text('now()'), nullable=False),
+        sa.ForeignKeyConstraint(['user_id'], ['auth.users.id'], ondelete='SET NULL'),
+    )
+    op.create_index('idx_audit_logs_user_id', 'audit_logs', ['user_id'])
+    op.create_index('idx_audit_logs_event_type', 'audit_logs', ['event_type'])
+    op.create_index('idx_audit_logs_created_at', 'audit_logs', ['created_at'], postgresql_using='DESC')
+
+    # 5. Create staff table
     op.create_table(
         'staff',
         sa.Column('id', postgresql.UUID(as_uuid=True), 
@@ -84,11 +109,12 @@ def upgrade() -> None:
     )
     op.create_index('idx_staff_user_id', 'staff', ['user_id'])
 
-    # 5. Enable RLS on all tables
+    # 6. Enable RLS on all tables
     op.execute('ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;')
     op.execute('ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;')
     op.execute('ALTER TABLE customers ENABLE ROW LEVEL SECURITY;')
     op.execute('ALTER TABLE staff ENABLE ROW LEVEL SECURITY;')
+    op.execute('ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;')
 
     # 6. Create RLS Policies for profiles
     op.execute('''
@@ -110,7 +136,14 @@ def upgrade() -> None:
           USING (auth.uid() = user_id);
     ''')
 
-    # 8. Create RLS Policies for customers
+    # 8. Create RLS Policies for audit_logs
+    op.execute('''
+        CREATE POLICY "Users can view own audit logs"
+          ON audit_logs FOR SELECT
+          USING (auth.uid() = user_id);
+    ''')
+
+    # 9. Create RLS Policies for customers
     op.execute('''
         CREATE POLICY "Customers view own customer profile"
           ON customers FOR SELECT
@@ -123,7 +156,7 @@ def upgrade() -> None:
           USING (auth.uid() = user_id);
     ''')
 
-    # 9. Create RLS Policies for staff
+    # 10. Create RLS Policies for staff
     op.execute('''
         CREATE POLICY "Staff can view own staff profile"
           ON staff FOR SELECT
@@ -135,6 +168,7 @@ def downgrade() -> None:
     """Drop authentication and user profile tables."""
     
     # Drop RLS policies (automatic with table drop)
+    op.drop_table('audit_logs')
     op.drop_table('staff')
     op.drop_table('customers')
     op.drop_table('user_roles')
