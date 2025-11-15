@@ -41,6 +41,10 @@ class Settings(BaseSettings):
         ...,
         description="Supabase project URL (e.g., https://xxxxx.supabase.co)",
     )
+    supabase_webhook_secret: str = Field(
+        ...,
+        description="Supabase webhook secret for signature verification",
+    )
 
     # Redis
     redis_host: str = Field(default="localhost", description="Redis host")

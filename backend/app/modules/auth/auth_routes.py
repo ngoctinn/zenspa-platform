@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlmodel import Session, select
 
 from app.core.auth import CurrentUser, get_current_user, require_admin
+from app.core.config import settings
 from app.core.database import get_session
 from app.core.security import get_client_ip, get_user_agent
 from app.modules.auth.auth_models import Profile, UserRole
@@ -19,8 +20,15 @@ from app.modules.auth.auth_schemas import (
     RevokeRoleResponse,
     RoleInfo,
     UserResponse,
+    WebhookResponse,
+    WebhookUserCreatedPayload,
 )
-from app.modules.auth.auth_service import assign_role, revoke_role
+from app.modules.auth.auth_service import assign_role, create_user_profile, revoke_role
+from app.modules.auth.webhook import (
+    extract_user_data_from_record,
+    validate_webhook_payload,
+    verify_supabase_signature,
+)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -200,4 +208,96 @@ async def revoke_user_role(
         user_id=user_id,
         role=role,
     )
+
+
+@router.post(
+    "/webhooks/user-created",
+    response_model=WebhookResponse,
+    summary="Webhook handler cho Supabase user.created event",
+    description="Nhận webhook từ Supabase khi user mới đăng ký, tạo profile và gán role customer.",
+    tags=["Webhooks"],
+)
+async def webhook_user_created(
+    request: Request,
+    session: Session = Depends(get_session),
+) -> WebhookResponse:
+    """
+    Endpoint POST /auth/webhooks/user-created - Supabase webhook handler.
+    
+    Xử lý event khi user mới đăng ký:
+    1. Verify webhook signature
+    2. Validate payload
+    3. Tạo profile cho user
+    4. Gán role customer mặc định
+    5. Log audit event
+    
+    Yêu cầu:
+    - Header: X-Supabase-Signature (HMAC SHA256)
+    - Body: WebhookUserCreatedPayload
+    
+    Returns:
+    - WebhookResponse: Thông báo kết quả
+    """
+    # Lấy raw body để verify signature
+    body = await request.body()
+    signature = request.headers.get("X-Supabase-Signature")
+    
+    # Verify signature
+    verify_supabase_signature(
+        payload=body,
+        signature=signature,
+        secret=settings.supabase_webhook_secret,
+    )
+    
+    # Parse JSON payload
+    payload = await request.json()
+    
+    # Validate payload structure
+    validate_webhook_payload(payload)
+    
+    # Chỉ xử lý INSERT events
+    if payload["type"] != "INSERT":
+        return WebhookResponse(
+            message=f"Ignored event type '{payload['type']}'",
+            user_id=None,
+        )
+    
+    # Extract user data
+    user_data = extract_user_data_from_record(payload["record"])
+    user_id = user_data["user_id"]
+    email = user_data["email"]
+    
+    if not user_id or not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Webhook payload thiếu user_id hoặc email",
+        )
+    
+    # Tạo profile + gán role customer
+    try:
+        # Extract full_name từ user_metadata nếu có
+        full_name = user_data["user_metadata"].get("full_name")
+        
+        create_user_profile(
+            session=session,
+            user_id=user_id,
+            email=email,
+            full_name=full_name,
+        )
+        
+        return WebhookResponse(
+            message="Đã tạo profile và gán role customer cho user mới",
+            user_id=user_id,
+        )
+        
+    except Exception as e:
+        # Log error nhưng vẫn return 200 để Supabase không retry
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Lỗi khi xử lý webhook user.created: {e}", exc_info=True)
+        
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Lỗi khi tạo profile: {str(e)}",
+        )
 

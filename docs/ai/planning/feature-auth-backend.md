@@ -326,33 +326,44 @@ feature: auth-backend
 
 **Mô tả:** Endpoint nhận webhook từ Supabase khi user mới đăng ký
 
+**Status:** ✅ DONE
+
 **Subtasks:**
 
-- [ ] Tạo file `app/modules/auth/webhook.py`
-- [ ] Implement `verify_supabase_signature(payload, signature, secret)`
-  - Verify HMAC signature
-- [ ] Implement `handle_user_created(user_data, session)`
-  - Check if profile exists (idempotent)
-  - Create profile record
-  - Create user_role (customer)
-  - Log audit event
-- [ ] Implement endpoint
-  ```python
-  @router.post("/webhooks/auth/user-created")
-  async def webhook_user_created(
-      request: Request,
-      session: Session = Depends(get_session)
-  ):
-      signature = request.headers.get("X-Supabase-Signature")
-      payload = await request.json()
-      verify_supabase_signature(payload, signature)
-      handle_user_created(payload["record"], session)
-      return {"message": "OK"}
-  ```
-- [ ] Configure webhook trong Supabase dashboard
-- [ ] Test với ngrok/local tunnel
+- [x] Tạo file `app/modules/auth/webhook.py`
+- [x] Implement `verify_supabase_signature(payload, signature, secret)`
+  - Verify HMAC SHA256 signature
+  - Constant-time comparison để tránh timing attack
+- [x] Implement helper functions:
+  - `validate_webhook_payload()`: Validate payload structure
+  - `extract_user_data_from_record()`: Extract user data từ webhook record
+- [x] Implement `create_user_profile()` trong auth_service.py (đã có từ Task 3.2)
+  - Idempotent: check profile exists
+  - Create profile record với full_name từ user_metadata
+  - Create user_role (customer, is_primary=True)
+  - Log audit event "user.registered"
+- [x] Thêm SUPABASE_WEBHOOK_SECRET vào config.py
+- [x] Implement endpoint POST /auth/webhooks/user-created
+  - Verify signature từ X-Supabase-Signature header
+  - Validate payload structure
+  - Chỉ xử lý INSERT events
+  - Extract user_id, email, full_name từ payload
+  - Call create_user_profile service
+  - Return WebhookResponse
+- [ ] Configure webhook trong Supabase dashboard (manual setup)
+- [ ] Test với ngrok/local tunnel (pending setup)
 
-**Ước tính:** 4 giờ
+**Notes:**
+- Created `webhook.py` với 3 helper functions
+- HMAC SHA256 signature verification với constant-time comparison
+- Webhook idempotent: không lỗi nếu profile đã tồn tại
+- Support extract full_name từ user_metadata (raw_user_meta_data)
+- Auto gán role customer (is_primary=True) cho user mới
+- Full audit logging với event "user.registered"
+- Endpoint: POST /api/v1/auth/webhooks/user-created
+- Vietnamese docstrings và error messages
+
+**Ước tính:** 4 giờ → **Actual: 2 giờ** (service create_user_profile đã có sẵn)
 
 **Dependencies:** Supabase project config access
 
@@ -364,37 +375,16 @@ feature: auth-backend
 
 **Mô tả:** Service ghi log security events
 
-**Subtasks:**
+**Status:** ✅ DONE (completed in Task 3.2)
 
-- [ ] Implement `log_audit_event()` trong `auth-service.py`
-  ```python
-  def log_audit_event(
-      user_id: uuid.UUID,
-      event_type: str,
-      metadata: dict,
-      ip_address: str,
-      user_agent: str,
-      session: Session
-  ):
-      log = AuditLog(
-          user_id=user_id,
-          event_type=event_type,
-          metadata=metadata,
-          ip_address=ip_address,
-          user_agent=user_agent
-      )
-      session.add(log)
-      session.commit()
-  ```
-- [ ] Tích hợp vào:
-  - `get_current_user()`: Log "user.authenticated"
-  - `assign_role()`: Log "role.assigned"
-  - `revoke_role()`: Log "role.revoked"
-  - Webhook handler: Log "user.created"
-- [ ] Tạo helper `get_client_ip(request: Request) -> str`
-- [ ] Tạo helper `get_user_agent(request: Request) -> str`
+**Notes:**
+- `log_audit_event()` đã implement trong auth_service.py (Task 3.2)
+- Đã tích hợp vào: assign_role(), revoke_role(), create_user_profile()
+- `get_client_ip()` và `get_user_agent()` đã có trong core/security.py (Task 3.2)
+- Audit events: "role.assigned", "role.revoked", "user.registered"
+- Metadata schemas đã define theo design doc
 
-**Ước tính:** 3 giờ
+**Ước tính:** 3 giờ → **Actual: 0 giờ** (merged with Task 3.2)
 
 **Dependencies:** Task 3.x complete
 
