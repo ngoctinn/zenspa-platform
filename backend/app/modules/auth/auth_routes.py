@@ -2,6 +2,7 @@
 Auth Routes: API endpoints cho xác thực và quản lý roles.
 """
 
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -11,10 +12,12 @@ from app.core.auth import CurrentUser, get_current_user, require_admin
 from app.core.config import settings
 from app.core.database import get_session
 from app.core.security import get_client_ip, get_user_agent
-from app.modules.auth.auth_models import Profile, UserRole
+from app.modules.auth.auth_models import AuditLog, Profile, UserRole
 from app.modules.auth.auth_schemas import (
     AssignRoleRequest,
     AssignRoleResponse,
+    AuditLogResponse,
+    AuditLogsListResponse,
     ProfileResponse,
     RevokeRoleRequest,
     RevokeRoleResponse,
@@ -300,4 +303,102 @@ async def webhook_user_created(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Lỗi khi tạo profile: {str(e)}",
         )
+
+
+@router.get(
+    "/audit-logs",
+    response_model=AuditLogsListResponse,
+    summary="Query audit logs (Admin only)",
+    description="Admin xem audit logs với filtering theo user_id, event_type, date range.",
+)
+async def get_audit_logs(
+    user_id: UUID | None = None,
+    event_type: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    limit: int = 100,
+    offset: int = 0,
+    current_user: CurrentUser = Depends(require_admin),
+    session: Session = Depends(get_session),
+) -> AuditLogsListResponse:
+    """
+    Endpoint GET /auth/audit-logs - Admin query audit logs.
+    
+    Yêu cầu:
+    - Role: admin
+    - Query params (optional):
+      - user_id: Filter by user ID
+      - event_type: Filter by event type
+      - start_date: Filter logs >= start_date
+      - end_date: Filter logs <= end_date
+      - limit: Max number of logs (default 100, max 1000)
+      - offset: Pagination offset (default 0)
+    
+    Returns:
+    - AuditLogsListResponse: Paginated list of audit logs
+    """
+    from datetime import datetime as dt_module
+    
+    # Validate limit
+    if limit > 1000:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Limit không được vượt quá 1000",
+        )
+    
+    if limit < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Limit phải >= 1",
+        )
+    
+    # Build query
+    stmt = select(AuditLog)
+    
+    # Apply filters
+    if user_id:
+        stmt = stmt.where(AuditLog.user_id == str(user_id))
+    
+    if event_type:
+        stmt = stmt.where(AuditLog.event_type == event_type)
+    
+    if start_date:
+        stmt = stmt.where(AuditLog.created_at >= start_date)
+    
+    if end_date:
+        stmt = stmt.where(AuditLog.created_at <= end_date)
+    
+    # Count total matching records
+    from sqlmodel import func
+    count_stmt = select(func.count()).select_from(AuditLog)
+    
+    if user_id:
+        count_stmt = count_stmt.where(AuditLog.user_id == str(user_id))
+    if event_type:
+        count_stmt = count_stmt.where(AuditLog.event_type == event_type)
+    if start_date:
+        count_stmt = count_stmt.where(AuditLog.created_at >= start_date)
+    if end_date:
+        count_stmt = count_stmt.where(AuditLog.created_at <= end_date)
+    
+    total = session.exec(count_stmt).one()
+    
+    # Order by created_at DESC (newest first)
+    stmt = stmt.order_by(AuditLog.created_at.desc())
+    
+    # Apply pagination
+    stmt = stmt.offset(offset).limit(limit)
+    
+    # Execute query
+    logs = session.exec(stmt).all()
+    
+    # Convert to response schema
+    log_responses = [AuditLogResponse.model_validate(log) for log in logs]
+    
+    return AuditLogsListResponse(
+        logs=log_responses,
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 

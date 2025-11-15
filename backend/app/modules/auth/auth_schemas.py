@@ -103,3 +103,26 @@ class WebhookResponse(BaseModel):
     
     message: str = Field(description="Thông báo kết quả")
     user_id: UUID | None = Field(default=None, description="ID của user được tạo")
+
+
+class AuditLogResponse(BaseModel):
+    """Response schema cho audit log entry."""
+    
+    id: UUID = Field(description="ID của audit log")
+    user_id: UUID | None = Field(default=None, description="ID của user thực hiện action")
+    event_type: str = Field(description="Loại event (role.assigned, user.login, etc.)")
+    metadata: dict | None = Field(default=None, description="Metadata JSON theo event type")
+    ip_address: str | None = Field(default=None, description="IP address của client")
+    user_agent: str | None = Field(default=None, description="User agent string")
+    created_at: datetime = Field(description="Thời điểm tạo log")
+    
+    model_config = {"from_attributes": True}
+
+
+class AuditLogsListResponse(BaseModel):
+    """Response cho danh sách audit logs với pagination."""
+    
+    logs: list[AuditLogResponse] = Field(description="Danh sách audit logs")
+    total: int = Field(description="Tổng số logs matching filter")
+    limit: int = Field(description="Số logs per page")
+    offset: int = Field(description="Offset hiện tại")

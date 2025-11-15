@@ -394,16 +394,33 @@ feature: auth-backend
 
 **Mô tả:** Endpoint để admin xem audit logs
 
+**Status:** ✅ DONE
+
 **Subtasks:**
 
-- [ ] Define `AuditLogResponse` schema
-- [ ] Implement `GET /api/v1/auth/audit-logs`
+- [x] Define `AuditLogResponse` schema
+- [x] Define `AuditLogsListResponse` schema cho pagination
+- [x] Implement `GET /api/v1/auth/audit-logs`
   - Query params: user_id, event_type, start_date, end_date, limit, offset
-  - Response: Paginated list
-- [ ] Implement filtering logic
-- [ ] Integration test
+  - Filter logic cho tất cả params
+  - Order by created_at DESC (newest first)
+  - Pagination với limit max 1000
+  - Count total matching records
+  - Response: AuditLogsListResponse
+- [x] Validate limit (1-1000)
+- [x] Require admin role
+- [ ] Integration test (pending backend run)
 
-**Ước tính:** 2 giờ
+**Notes:**
+- Created `AuditLogResponse` và `AuditLogsListResponse` schemas
+- Endpoint: GET /api/v1/auth/audit-logs
+- Support multiple filters: user_id, event_type, date range
+- Pagination: limit (default 100, max 1000), offset
+- Total count included in response for frontend pagination
+- Admin-only access
+- Vietnamese docstrings
+
+**Ước tính:** 2 giờ → **Actual: 1 giờ**
 
 **Dependencies:** Task 4.1 complete
 

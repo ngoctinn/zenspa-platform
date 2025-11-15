@@ -12,6 +12,8 @@ from .auth_routes import router as auth_router
 from .auth_schemas import (
     AssignRoleRequest,
     AssignRoleResponse,
+    AuditLogResponse,
+    AuditLogsListResponse,
     ProfileResponse,
     RevokeRoleRequest,
     RevokeRoleResponse,
@@ -36,6 +38,8 @@ __all__ = [
     "RevokeRoleResponse",
     "WebhookUserCreatedPayload",
     "WebhookResponse",
+    "AuditLogResponse",
+    "AuditLogsListResponse",
     # Router
     "auth_router",
 ]
