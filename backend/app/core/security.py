@@ -14,6 +14,48 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
+def get_client_ip(request: Request) -> str:
+    """
+    Lấy IP address của client từ request.
+    Ưu tiên X-Forwarded-For header (khi có reverse proxy).
+    
+    Args:
+        request: FastAPI Request object
+        
+    Returns:
+        IP address string
+    """
+    # Check X-Forwarded-For header (khi dùng reverse proxy như nginx)
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        # X-Forwarded-For có thể chứa nhiều IPs, lấy IP đầu tiên
+        return forwarded_for.split(",")[0].strip()
+    
+    # Check X-Real-IP header
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip.strip()
+    
+    # Fallback: Lấy từ client.host
+    if request.client:
+        return request.client.host
+    
+    return "unknown"
+
+
+def get_user_agent(request: Request) -> str:
+    """
+    Lấy User-Agent string từ request.
+    
+    Args:
+        request: FastAPI Request object
+        
+    Returns:
+        User-Agent string hoặc "unknown"
+    """
+    return request.headers.get("User-Agent", "unknown")
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Middleware to add security headers to responses."""
 
