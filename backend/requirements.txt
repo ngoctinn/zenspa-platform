@@ -12,6 +12,10 @@ psycopg2-binary==2.9.10
 # Cache
 redis==5.2.0
 
+# JWT verification
+PyJWT==2.10.1
+cryptography==44.0.0
+
 # Resilience
 tenacity==9.0.0
 

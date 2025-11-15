@@ -36,6 +36,12 @@ class Settings(BaseSettings):
     db_pool_pre_ping: bool = Field(default=True, description="Enable pool pre-ping")
     db_echo: bool = Field(default=False, description="Echo SQL statements")
 
+    # Supabase
+    supabase_url: str = Field(
+        ...,
+        description="Supabase project URL (e.g., https://xxxxx.supabase.co)",
+    )
+
     # Redis
     redis_host: str = Field(default="localhost", description="Redis host")
     redis_port: int = Field(default=6379, description="Redis port")
