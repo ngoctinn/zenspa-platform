@@ -68,17 +68,17 @@ graph TD
     Login[User Login] -->|JWT stored| FrontendState[Frontend State]
     FrontendState -->|Call GET /auth/me| Backend[Backend]
     Backend -->|Return roles + is_primary| Frontend[Frontend]
-    
+
     Frontend -->|Check is_primary| CheckPrimary{Has multiple roles?}
     CheckPrimary -->|Yes| ShowSwitcher[Show Role Switcher]
     CheckPrimary -->|No| DefaultDash[Load Primary Role Dashboard]
-    
+
     ShowSwitcher -->|User clicks role| UpdateContext[Update Context/State]
     UpdateContext -->|Fetch role-specific data| RoleDash[Load Role Dashboard]
-    
+
     RoleDash -->|User performs action| LogEvent[Backend logs event]
     LogEvent -->|Audit trail| AuditLog[(Audit Logs)]
-    
+
     style Login fill:#E3F2FD
     style ShowSwitcher fill:#F3E5F5
     style DefaultDash fill:#C8E6C9
@@ -120,22 +120,22 @@ interface UserState {
   user_id: string;
   email: string;
   roles: RoleInfo[];
-  current_role: string;  // Currently selected role
-  primary_role: string;  // Default role
+  current_role: string; // Currently selected role
+  primary_role: string; // Default role
   profile: Profile;
 }
 
 const useAuth = () => {
   const [user, setUser] = useState<UserState | null>(null);
-  
+
   // Switch role
   const switchRole = (role: string) => {
-    if (user?.roles.some(r => r.role === role)) {
-      setUser({...user, current_role: role});
+    if (user?.roles.some((r) => r.role === role)) {
+      setUser({ ...user, current_role: role });
       // Fetch role-specific data
     }
   };
-  
+
   return { user, switchRole };
 };
 ```
@@ -882,6 +882,7 @@ except RedisException:
 **Storage Estimation (1 năm):**
 
 Giả định:
+
 - 1000 req/s auth checks
 - ~70% requests log audit events (security + business events)
 - ~700 events/s
@@ -892,6 +893,7 @@ Giả định:
 ```
 
 **Per-event size:**
+
 ```
 - id (uuid): 16 bytes
 - user_id (uuid): 16 bytes
@@ -906,6 +908,7 @@ Total per event: ~486 bytes
 ```
 
 **Total storage:**
+
 ```
 22 tỷ events × 486 bytes = ~10.7 TB/year
 ```
@@ -933,19 +936,19 @@ CREATE TABLE audit_logs_2024_12 PARTITION OF audit_logs
 # Run monthly: Move 13+ months old data to S3
 async def archive_old_audit_logs():
     cutoff_date = datetime.now() - timedelta(days=365+30)
-    
+
     # 1. Export to Parquet (optimized format)
     data = await db.query(AuditLog).filter(
         AuditLog.created_at < cutoff_date
     ).all()
-    
+
     # 2. Upload to S3
     s3.put_object(
         Bucket="zenspa-audit-archive",
         Key=f"audit-logs/{cutoff_date.year}/{cutoff_date.month:02d}.parquet",
         Body=to_parquet(data)
     )
-    
+
     # 3. Delete from DB
     await db.delete(AuditLog).filter(
         AuditLog.created_at < cutoff_date
@@ -956,15 +959,15 @@ async def archive_old_audit_logs():
 
 **Traceability Matrix:**
 
-| User Story | Design Component | Acceptance Criteria | Status |
-|-----------|------------------|-------------------|--------|
-| **US-1: Verify JWT** | JWT Verifier, auth.py | JWT decode + verify signature + cache | ✅ |
-| **US-2: Role-Based Auth** | Role Checker, dependencies | require_customer/receptionist/technician/admin | ✅ |
-| **US-3: Get Current User** | GET /auth/me endpoint | Return user_id, email, roles[], profile | ✅ |
-| **US-4: Auto-Assign Customer** | Webhook handler | Idempotent profile + role creation | ✅ |
-| **US-5: Audit Log** | AuditLog service | Log 6+ events with metadata | ✅ |
-| **US-6: Multi-Role Support** | UserRole table, queries | Many-to-many, unique(user_id, role) | ✅ |
-| **US-7: Fine-Grained Permissions** | Permission matrix | Role capabilities defined, endpoint protection | ✅ |
+| User Story                         | Design Component           | Acceptance Criteria                            | Status |
+| ---------------------------------- | -------------------------- | ---------------------------------------------- | ------ |
+| **US-1: Verify JWT**               | JWT Verifier, auth.py      | JWT decode + verify signature + cache          | ✅     |
+| **US-2: Role-Based Auth**          | Role Checker, dependencies | require_customer/receptionist/technician/admin | ✅     |
+| **US-3: Get Current User**         | GET /auth/me endpoint      | Return user_id, email, roles[], profile        | ✅     |
+| **US-4: Auto-Assign Customer**     | Webhook handler            | Idempotent profile + role creation             | ✅     |
+| **US-5: Audit Log**                | AuditLog service           | Log 6+ events with metadata                    | ✅     |
+| **US-6: Multi-Role Support**       | UserRole table, queries    | Many-to-many, unique(user_id, role)            | ✅     |
+| **US-7: Fine-Grained Permissions** | Permission matrix          | Role capabilities defined, endpoint protection | ✅     |
 
 **Missing or Unclear:**
 
@@ -994,13 +997,13 @@ async def archive_old_audit_logs():
 
 **Rủi ro & Mitigations:**
 
-| Rủi Ro | Severity | Mitigation |
-|--------|----------|-----------|
-| Redis unavailable | Medium | Fallback to DB query |
-| JWT public key rotation | Low | 1-hour TTL cache, retry logic |
-| Webhook signature forgery | High | Verify Supabase signature |
-| Role permission bypass | Critical | Test all role checks, security review |
-| Audit log data explosion | Medium | Partition + archive strategy |
+| Rủi Ro                    | Severity | Mitigation                            |
+| ------------------------- | -------- | ------------------------------------- |
+| Redis unavailable         | Medium   | Fallback to DB query                  |
+| JWT public key rotation   | Low      | 1-hour TTL cache, retry logic         |
+| Webhook signature forgery | High     | Verify Supabase signature             |
+| Role permission bypass    | Critical | Test all role checks, security review |
+| Audit log data explosion  | Medium   | Partition + archive strategy          |
 
 **Readiness for Implementation:**
 

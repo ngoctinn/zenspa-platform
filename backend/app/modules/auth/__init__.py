@@ -1,5 +1,5 @@
 """
-Auth module: Authentication, authorization, and audit logging.
+Auth module: Xác thực, phân quyền và nhật ký audit.
 
 Exports:
 - Models: Profile, UserRole, AuditLog
