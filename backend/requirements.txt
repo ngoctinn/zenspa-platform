@@ -1,0 +1,27 @@
+# FastAPI and web framework
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+
+# Configuration and validation
+pydantic-settings==2.6.1
+
+# Database
+sqlmodel==0.0.22
+psycopg2-binary==2.9.10
+
+# Cache
+redis==5.2.0
+
+# Resilience
+tenacity==9.0.0
+
+# Logging
+python-json-logger==3.1.0
+
+# Database migrations
+alembic==1.14.0
+
+# Testing (dev only, but included for completeness)
+pytest==8.3.3
+pytest-asyncio==0.24.0
+httpx==0.27.2
