@@ -293,26 +293,30 @@ feature: auth-backend
 
 **Mô tả:** Endpoint để admin xóa role của user
 
+**Status:** ✅ DONE
+
 **Subtasks:**
 
-- [ ] Implement `revoke_role(user_id, role, revoked_by, session, ip)` trong service
+- [x] Implement `revoke_role(user_id, role, revoked_by, session, ip)` trong service (đã có trong Task 3.2)
   - Delete from user_roles table
   - Invalidate cache
-  - Log audit event
-- [ ] Implement endpoint
-  ```python
-  @router.delete("/roles/{user_id}/{role}")
-  async def revoke_role(
-      user_id: uuid.UUID,
-      role: str,
-      current_user: CurrentUser = Depends(require_admin),
-      ...
-  ):
-      ...
-  ```
-- [ ] Integration test
+  - Log audit event với metadata: revoked_role, revoked_by_id, reason
+- [x] Implement endpoint DELETE /auth/roles/{user_id}/{role}
+  - Path params: user_id, role
+  - Optional body: RevokeRoleRequest (reason)
+  - Validate role format
+  - Idempotent: không lỗi nếu role không tồn tại
+  - Return RevokeRoleResponse
+- [ ] Integration test (pending backend run)
 
-**Ước tính:** 2 giờ
+**Notes:**
+- Function `revoke_role()` đã có sẵn trong auth_service.py từ Task 3.2
+- Endpoint idempotent: trả về success message ngay cả khi role không tồn tại
+- Full audit logging với IP, user agent, reason
+- Cache invalidation automatic
+- Vietnamese error messages
+
+**Ước tính:** 2 giờ → **Actual: 0.5 giờ** (service đã có sẵn)
 
 **Dependencies:** Task 3.2 complete
 

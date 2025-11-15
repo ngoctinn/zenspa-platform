@@ -15,10 +15,12 @@ from app.modules.auth.auth_schemas import (
     AssignRoleRequest,
     AssignRoleResponse,
     ProfileResponse,
+    RevokeRoleRequest,
+    RevokeRoleResponse,
     RoleInfo,
     UserResponse,
 )
-from app.modules.auth.auth_service import assign_role
+from app.modules.auth.auth_service import assign_role, revoke_role
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -137,4 +139,65 @@ async def assign_user_role(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+
+
+@router.delete(
+    "/roles/{user_id}/{role}",
+    response_model=RevokeRoleResponse,
+    summary="Xóa role của user (Admin only)",
+    description="Admin xóa role của user. Idempotent - không lỗi nếu role không tồn tại.",
+)
+async def revoke_user_role(
+    user_id: UUID,
+    role: str,
+    request: Request,
+    request_data: RevokeRoleRequest | None = None,
+    current_user: CurrentUser = Depends(require_admin),
+    session: Session = Depends(get_session),
+) -> RevokeRoleResponse:
+    """
+    Endpoint DELETE /auth/roles/{user_id}/{role} - Admin xóa role của user.
+    
+    Yêu cầu:
+    - Role: admin
+    - Path params: user_id, role
+    - Body (optional): RevokeRoleRequest (reason)
+    
+    Returns:
+    - RevokeRoleResponse: Thông báo kết quả
+    """
+    # Validate role
+    valid_roles = ["customer", "receptionist", "technician", "admin"]
+    if role not in valid_roles:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Role '{role}' không hợp lệ. Phải là: {', '.join(valid_roles)}",
+        )
+    
+    # Xóa role
+    reason = request_data.reason if request_data else None
+    
+    revoked = revoke_role(
+        session=session,
+        user_id=user_id,
+        role=role,
+        revoked_by=current_user.user_id,
+        reason=reason,
+        ip_address=get_client_ip(request),
+        user_agent=get_user_agent(request),
+    )
+    
+    if not revoked:
+        # Idempotent: Không lỗi nếu role không tồn tại
+        return RevokeRoleResponse(
+            message=f"User không có role '{role}' (đã xóa trước đó)",
+            user_id=user_id,
+            role=role,
+        )
+    
+    return RevokeRoleResponse(
+        message=f"Đã xóa role '{role}' của user",
+        user_id=user_id,
+        role=role,
+    )
 
