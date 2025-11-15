@@ -3,11 +3,39 @@ Auth module: Xác thực, phân quyền và nhật ký audit.
 
 Exports:
 - Models: Profile, UserRole, AuditLog
-- Dependencies: get_current_user, require_role, etc.
-- Services: Auth service, audit logging
-- Routes: Auth endpoints
+- Schemas: UserResponse, ProfileResponse, AssignRoleRequest, etc.
+- Router: auth_router
 """
 
-from .auth_models import Profile, UserRole, AuditLog
+from .auth_models import AuditLog, Profile, UserRole
+from .auth_routes import router as auth_router
+from .auth_schemas import (
+    AssignRoleRequest,
+    AssignRoleResponse,
+    ProfileResponse,
+    RevokeRoleRequest,
+    RevokeRoleResponse,
+    RoleInfo,
+    UserResponse,
+    WebhookResponse,
+    WebhookUserCreatedPayload,
+)
 
-__all__ = ["Profile", "UserRole", "AuditLog"]
+__all__ = [
+    # Models
+    "Profile",
+    "UserRole",
+    "AuditLog",
+    # Schemas
+    "UserResponse",
+    "ProfileResponse",
+    "RoleInfo",
+    "AssignRoleRequest",
+    "AssignRoleResponse",
+    "RevokeRoleRequest",
+    "RevokeRoleResponse",
+    "WebhookUserCreatedPayload",
+    "WebhookResponse",
+    # Router
+    "auth_router",
+]

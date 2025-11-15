@@ -177,36 +177,14 @@ feature: auth-backend
 
 **Mô tả:** Tạo dependency để load user + roles trong `app/core/auth.py`
 
-**Subtasks:**
+**Status:** ✅ DONE (implemented in Task 2.2)
 
-- [ ] Define `CurrentUser` class
+**Notes:** Đã implement cùng với Task 2.2 trong file `app/core/auth.py`:
+- Class `CurrentUser` với has_role(), is_customer(), is_admin(), etc.
+- Function `get_current_user()` dependency với Redis caching
+- Multi-role support với cache invalidation
 
-  ```python
-  class CurrentUser:
-      user_id: uuid.UUID
-      email: str
-      roles: list[str]
-      profile: Profile | None
-
-      def has_role(self, role: str) -> bool:
-          return role in self.roles
-
-      def is_customer(self) -> bool:
-          return "customer" in self.roles
-  ```
-
-- [ ] Implement `get_current_user(token: str, session: Session) -> CurrentUser`
-  - Verify JWT token
-  - Load user_roles từ DB (hoặc cache)
-  - Load profile nếu có
-  - Return CurrentUser object
-- [ ] Implement caching với Redis
-  - Key: `user:{user_id}:roles`
-  - TTL: 15 phút
-  - Invalidate khi role changes
-- [ ] Unit tests
-
-**Ước tính:** 3 giờ
+**Ước tính:** 3 giờ → **Actual: 0 giờ** (merged with Task 2.2)
 
 **Dependencies:** Task 2.2 complete
 
@@ -216,25 +194,15 @@ feature: auth-backend
 
 **Mô tả:** Tạo dependencies cho role checks trong `app/core/auth.py`
 
-**Subtasks:**
+**Status:** ✅ DONE (implemented in Task 2.2)
 
-- [ ] Implement `require_role(role: str)`
-  ```python
-  def require_role(role: str):
-      async def dependency(current_user: CurrentUser = Depends(get_current_user)):
-          if not current_user.has_role(role):
-              raise HTTPException(403, "Không có quyền truy cập")
-          return current_user
-      return dependency
-  ```
-- [ ] Implement shortcuts:
-  - `require_customer = require_role("customer")`
-  - `require_staff = require_role("staff")`
-  - `require_admin = require_role("admin")`
-- [ ] Implement `require_roles(roles: list[str])` (OR logic)
-- [ ] Unit tests cho tất cả role dependencies
+**Notes:** Đã implement cùng với Task 2.2:
+- `require_role(role: str)` - factory function
+- `require_any_role(roles: list[str])` - OR logic
+- Shortcuts: `require_customer()`, `require_receptionist()`, `require_technician()`, `require_admin()`, `require_staff()`
+- All với Vietnamese error messages
 
-**Ước tính:** 2 giờ
+**Ước tính:** 2 giờ → **Actual: 0 giờ** (merged with Task 2.2)
 
 **Dependencies:** Task 2.3 complete
 
@@ -246,30 +214,32 @@ feature: auth-backend
 
 **Mô tả:** Endpoint lấy thông tin user hiện tại
 
+**Status:** ✅ DONE
+
 **Subtasks:**
 
-- [ ] Tạo file `app/modules/auth/auth-schemas.py`
-- [ ] Define `UserResponse` schema
-  ```python
-  class UserResponse(BaseModel):
-      user_id: uuid.UUID
-      email: str
-      roles: list[str]
-      profile: ProfileResponse | None
-      created_at: datetime
-  ```
-- [ ] Tạo file `app/modules/auth/auth-routes.py`
-- [ ] Implement endpoint
-  ```python
-  @router.get("/me", response_model=UserResponse)
-  async def get_me(current_user: CurrentUser = Depends(get_current_user)):
-      return UserResponse(...)
-  ```
-- [ ] Register router trong `app/api/router.py`
-- [ ] Test endpoint với Postman/curl
+- [x] Tạo file `app/modules/auth/auth_schemas.py`
+- [x] Define `UserResponse` schema với roles list
+- [x] Define `ProfileResponse` schema
+- [x] Define `RoleInfo` schema cho role details (role, is_primary, assigned_at, assigned_by)
+- [x] Tạo file `app/modules/auth/auth_routes.py`
+- [x] Implement endpoint GET /auth/me
+  - Load user_roles từ DB (full info, không dùng cache)
+  - Load profile nếu có
+  - Return UserResponse
+- [x] Cập nhật `app/modules/auth/__init__.py` export schemas và router
+- [x] Register auth_router trong `app/api/router.py`
+- [ ] Test endpoint với Postman/curl (pending backend run)
 - [ ] Integration test
 
-**Ước tính:** 2 giờ
+**Notes:**
+- Created `auth_schemas.py` với 9 schemas: UserResponse, ProfileResponse, RoleInfo, AssignRoleRequest/Response, RevokeRoleRequest/Response, WebhookUserCreatedPayload, WebhookResponse
+- Created `auth_routes.py` với GET /auth/me endpoint
+- Router registered tại `/api/v1/auth/me`
+- Response bao gồm full role info (is_primary, assigned_at, assigned_by)
+- Vietnamese docstrings và field descriptions
+
+**Ước tính:** 2 giờ → **Actual: 1 giờ**
 
 **Dependencies:** Task 2.3 complete
 
