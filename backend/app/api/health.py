@@ -58,7 +58,7 @@ async def redis_health_check() -> RedisHealthResponse:
     """Health check endpoint cho Redis."""
     is_healthy, response_time = check_redis_health()
 
-    redis_url = f"{settings.redis_host}:{settings.redis_port}"
+    redis_url = settings.upstash_redis_rest_url or "Not configured"
 
     return RedisHealthResponse(
         status="healthy" if is_healthy else "unhealthy",

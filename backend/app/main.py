@@ -1,12 +1,13 @@
 """Main FastAPI application."""
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, RequestValidationError
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from app.core.config import settings
-from app.core.logging import setup_logging
+from app.core.logging import setup_logging, logger
 from app.core.database import init_db, close_db
 from app.redis.client import close_redis
 from app.core.exceptions import (
@@ -31,9 +32,9 @@ async def lifespan(app: FastAPI):
         # Khởi tạo database
         init_db()
 
-        app.logger.info("✅ Ứng dụng khởi động thành công")
+        logger.info("✅ Ứng dụng khởi động thành công")
     except Exception as e:
-        app.logger.error(f"❌ Ứng dụng khởi động thất bại: {e}")
+        logger.error(f"❌ Ứng dụng khởi động thất bại: {e}")
         raise
 
     yield
@@ -46,9 +47,9 @@ async def lifespan(app: FastAPI):
         # Đóng kết nối Redis
         close_redis()
 
-        app.logger.info("✅ Ứng dụng tắt thành công")
+        logger.info("✅ Ứng dụng tắt thành công")
     except Exception as e:
-        app.logger.error(f"❌ Lỗi khi tắt ứng dụng: {e}")
+        logger.error(f"❌ Lỗi khi tắt ứng dụng: {e}")
 
 
 # Tạo ứng dụng FastAPI

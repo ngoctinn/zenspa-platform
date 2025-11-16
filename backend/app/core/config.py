@@ -24,12 +24,9 @@ class Settings(BaseSettings):
     # Database (Supabase PostgreSQL)
     database_url: str
 
-    # Redis
-    redis_host: str = "localhost"
-    redis_port: int = 6379
-    redis_db: int = 0
-    redis_password: str | None = None
-    redis_decode_responses: bool = True
+    # Redis (Upstash REST API)
+    upstash_redis_rest_url: str | None = None
+    upstash_redis_rest_token: str | None = None
 
     # Logging
     log_level: str = "INFO"
@@ -41,7 +38,9 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
-        case_sensitive = True
+        case_sensitive = False
+        extra = "ignore"
+
 
     @property
     def cors_origins_list(self) -> List[str]:
@@ -55,6 +54,20 @@ class Settings(BaseSettings):
         if not v.startswith('postgresql'):
             raise ValueError('DATABASE_URL phải bắt đầu bằng postgresql')
         return v
+
+    @field_validator('cors_origins', mode='before')
+    @classmethod
+    def validate_cors_origins(cls, v):
+        """Xác thực và parse CORS origins từ env var."""
+        if isinstance(v, list):
+            return v
+        if isinstance(v, str):
+            if not v.strip():
+                return ["http://localhost:3000"]  # default
+            # Handle comma-separated or single URL
+            origins = [origin.strip() for origin in v.split(',') if origin.strip()]
+            return origins
+        return ["http://localhost:3000"]  # fallback
 
 
 # Instance cài đặt toàn cục

@@ -8,8 +8,8 @@ def test_settings_creation():
     """Test that settings can be created."""
     settings = Settings(
         database_url="postgresql://test:test@localhost/test",
-        redis_host="localhost",
-        redis_port=6379
+        upstash_redis_rest_url="https://test.upstash.io",
+        upstash_redis_rest_token="test_token"
     )
     assert settings.app_name == "ZenSpa Backend"
     assert settings.database_url == "postgresql://test:test@localhost/test"

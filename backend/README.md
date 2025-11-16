@@ -122,14 +122,14 @@ alembic downgrade -1
 
 ## Environment Variables
 
-| Variable                  | Description                  | Required                |
-| ------------------------- | ---------------------------- | ----------------------- |
-| DATABASE_URL              | PostgreSQL connection string | Yes                     |
-| REDIS_HOST                | Redis host                   | No (default: localhost) |
-| REDIS_PORT                | Redis port                   | No (default: 6379)      |
-| SUPABASE_URL              | Supabase project URL         | No (for future auth)    |
-| SUPABASE_ANON_KEY         | Supabase anonymous key       | No                      |
-| SUPABASE_SERVICE_ROLE_KEY | Supabase service role key    | No                      |
+| Variable                  | Description                  | Required             |
+| ------------------------- | ---------------------------- | -------------------- |
+| DATABASE_URL              | PostgreSQL connection string | Yes                  |
+| UPSTASH_REDIS_REST_URL    | Upstash Redis REST API URL   | Yes                  |
+| UPSTASH_REDIS_REST_TOKEN  | Upstash Redis REST API token | Yes                  |
+| SUPABASE_URL              | Supabase project URL         | No (for future auth) |
+| SUPABASE_ANON_KEY         | Supabase anonymous key       | No                   |
+| SUPABASE_SERVICE_ROLE_KEY | Supabase service role key    | No                   |
 
 ## Contributing
 
