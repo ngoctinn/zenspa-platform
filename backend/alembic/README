@@ -1,0 +1,53 @@
+# Alembic Migrations for ZenSpa Backend
+
+This directory contains database migration scripts for the ZenSpa backend application.
+
+## Setup
+
+1. Ensure your `.env` file contains the correct `DATABASE_URL`
+2. The migrations are configured to work with SQLModel (SQLAlchemy + Pydantic)
+
+## Commands
+
+### Create a new migration
+
+```bash
+alembic revision --autogenerate -m "Add user table"
+```
+
+### Apply migrations
+
+```bash
+alembic upgrade head
+```
+
+### Rollback last migration
+
+```bash
+alembic downgrade -1
+```
+
+### Show current status
+
+```bash
+alembic current
+```
+
+### Show migration history
+
+```bash
+alembic history
+```
+
+## Configuration
+
+- `alembic.ini`: Main configuration file
+- `env.py`: Migration environment (imports SQLModel metadata when models are added)
+- `versions/`: Migration script files
+- `script.py.mako`: Template for generating migration files
+
+## Notes
+
+- Migrations use sync SQLAlchemy engine for compatibility with SQLModel
+- Target metadata is set to `SQLModel.metadata` when models are available
+- Database URL is read from environment variables via `app.core.config`
