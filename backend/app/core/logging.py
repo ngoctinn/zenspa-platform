@@ -23,7 +23,7 @@ class JSONFormatter(logging.Formatter):
         }
 
         # Thêm request_id nếu có
-        if hasattr(record, 'request_id'):
+        if hasattr(record, "request_id"):
             log_data["request_id"] = record.request_id
 
         # Thêm exception info nếu có
@@ -44,7 +44,7 @@ def setup_logging() -> None:
     else:
         formatter = logging.Formatter(
             "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
 
     # Cấu hình handler
@@ -54,19 +54,19 @@ def setup_logging() -> None:
 
     # Cấu hình root logger
     logging.basicConfig(
-        level=log_level,
-        handlers=[handler],
-        force=True  # Ghi đè cấu hình hiện có
+        level=log_level, handlers=[handler], force=True  # Ghi đè cấu hình hiện có
     )
 
     # Giảm noise từ external libraries
-    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+    logging.getLogger("uvicorn.access").setLevel(logging.INFO)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
     logging.getLogger("alembic").setLevel(logging.INFO)
 
     # Log thông điệp khởi động
     logger = logging.getLogger(__name__)
-    logger.info(f"Logging đã cấu hình cho {settings.environment} environment với level {settings.log_level}")
+    logger.info(
+        f"Logging đã cấu hình cho {settings.environment} environment với level {settings.log_level}"
+    )
 
 
 # Instance logger toàn cục

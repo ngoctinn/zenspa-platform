@@ -52,6 +52,7 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
         options: {
           data: {
             full_name: data.fullName,
+            role: "customer",
           },
         },
       });

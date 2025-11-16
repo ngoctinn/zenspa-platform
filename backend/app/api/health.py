@@ -2,7 +2,11 @@
 
 from datetime import datetime
 from fastapi import APIRouter, status
-from app.common.schemas import HealthCheckResponse, DatabaseHealthResponse, RedisHealthResponse
+from app.common.schemas import (
+    HealthCheckResponse,
+    DatabaseHealthResponse,
+    RedisHealthResponse,
+)
 from app.core.config import settings
 from app.core.database import check_database_health
 from app.redis.client import check_redis_health
@@ -15,15 +19,16 @@ router = APIRouter()
     "/health",
     response_model=HealthCheckResponse,
     summary="Health Check Tổng Quan",
-    description="Kiểm tra sức khỏe tổng quan của ứng dụng"
+    description="Kiểm tra sức khỏe tổng quan của ứng dụng",
 )
 async def health_check() -> HealthCheckResponse:
     """Health check endpoint tổng quan."""
+    logger.info("Health check endpoint được gọi")
     return HealthCheckResponse(
         status="healthy",
         timestamp=datetime.utcnow(),
         service=settings.app_name,
-        version=settings.app_version
+        version=settings.app_version,
     )
 
 
@@ -31,7 +36,7 @@ async def health_check() -> HealthCheckResponse:
     "/health/db",
     response_model=DatabaseHealthResponse,
     summary="Health Check Database",
-    description="Kiểm tra kết nối PostgreSQL và thời gian phản hồi"
+    description="Kiểm tra kết nối PostgreSQL và thời gian phản hồi",
 )
 async def database_health_check() -> DatabaseHealthResponse:
     """Health check endpoint cho database."""
@@ -44,7 +49,7 @@ async def database_health_check() -> DatabaseHealthResponse:
         version=settings.app_version,
         database="postgresql",
         connected=is_healthy,
-        response_time_ms=round(response_time * 1000, 2)  # Chuyển sang milliseconds
+        response_time_ms=round(response_time * 1000, 2),  # Chuyển sang milliseconds
     )
 
 
@@ -52,7 +57,7 @@ async def database_health_check() -> DatabaseHealthResponse:
     "/health/redis",
     response_model=RedisHealthResponse,
     summary="Health Check Redis",
-    description="Kiểm tra kết nối Redis và thời gian phản hồi"
+    description="Kiểm tra kết nối Redis và thời gian phản hồi",
 )
 async def redis_health_check() -> RedisHealthResponse:
     """Health check endpoint cho Redis."""
@@ -67,14 +72,14 @@ async def redis_health_check() -> RedisHealthResponse:
         version=settings.app_version,
         redis=redis_url,
         connected=is_healthy,
-        response_time_ms=round(response_time * 1000, 2)  # Chuyển sang milliseconds
+        response_time_ms=round(response_time * 1000, 2),  # Chuyển sang milliseconds
     )
 
 
 @router.get(
     "/health/all",
     summary="Health Check Toàn Diện",
-    description="Kiểm tra tất cả services (database, redis) và trả về trạng thái tổng quan"
+    description="Kiểm tra tất cả services (database, redis) và trả về trạng thái tổng quan",
 )
 async def comprehensive_health_check():
     """Health check toàn diện cho tất cả services."""
@@ -95,11 +100,11 @@ async def comprehensive_health_check():
         "checks": {
             "database": {
                 "healthy": db_healthy,
-                "response_time_ms": round(db_time * 1000, 2)
+                "response_time_ms": round(db_time * 1000, 2),
             },
             "redis": {
                 "healthy": redis_healthy,
-                "response_time_ms": round(redis_time * 1000, 2)
-            }
-        }
+                "response_time_ms": round(redis_time * 1000, 2),
+            },
+        },
     }
