@@ -13,7 +13,7 @@ export const getUserProfile = async (): Promise<UserProfile> => {
     throw new Error("No access token");
   }
 
-  const response = await fetch("/api/v1/users/me", {
+  const response = await fetch("http://localhost:8000/api/v1/users/me", {
     headers: {
       Authorization: `Bearer ${sessionData.session.access_token}`,
     },
