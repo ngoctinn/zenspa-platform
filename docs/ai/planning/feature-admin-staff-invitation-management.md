@@ -10,62 +10,57 @@ description: Phân tích công việc thành các nhiệm vụ có thể thực 
 
 **Các điểm kiểm tra chính là gì?**
 
-- [ ] Mốc 0: Hoàn thành docs requirements và design (review và approval)
-- [ ] Mốc 1: Hoàn thành thiết kế DB và models (migration tested)
-- [ ] Mốc 2: Triển khai backend API (unit tests pass)
-- [ ] Mốc 3: Triển khai frontend và tích hợp (e2e tests pass)
+- [ ] Mốc 1: Hoàn thành thiết kế DB và models
+- [ ] Mốc 2: Triển khai backend API
+- [ ] Mốc 3: Triển khai frontend và tích hợp
 
 ## Phân Tích Nhiệm Vụ
 
 **Công việc cụ thể nào cần thực hiện?**
 
-### Giai Đoạn 0: Hoàn Chỉnh Tài Liệu
-
-- [ ] Nhiệm vụ 0.1: Cập nhật requirements với stakeholders, acceptance criteria, chi tiết email/UI, error scenarios
-- [ ] Nhiệm vụ 0.2: Cập nhật design với DB schema chi tiết, sequence diagrams, error handling, migration plan, auth integration
-
 ### Giai Đoạn 1: Nền Tảng
 
-- [ ] Nhiệm vụ 1.1: Tạo enum Role và bảng UserRoleLink trong SQLModel
-- [ ] Nhiệm vụ 1.2: Tạo migration Alembic cho bảng mới và migrate từ Profile.role
+- [ ] Nhiệm vụ 1.1: Tạo enum Role và bảng UserRoleLink trong SQLModel (admin_models.py)
+- [ ] Nhiệm vụ 1.2: Tạo migration Alembic cho bảng UserRoleLink mới
+- [ ] Nhiệm vụ 1.3: Cập nhật logic để sử dụng UserRoleLink thay vì Profile.role (để hỗ trợ nhiều-nhiều)
 
 ### Giai Đoạn 2: Tính Năng Cốt Lõi
 
-- [ ] Nhiệm vụ 2.1: Tạo module admin với schemas, service, routes
-- [ ] Nhiệm vụ 2.2: Triển khai logic xử lý 5 trường hợp mời/gán với error handling
-- [ ] Nhiệm vụ 2.3: Tạo API endpoint POST /api/v1/admin/invite-staff với response examples
-- [ ] Nhiệm vụ 2.4: Cập nhật auth để include roles từ DB
+- [x] Nhiệm vụ 2.1: Module admin đã tồn tại với schemas, service, routes cơ bản
+- [ ] Nhiệm vụ 2.2: Cập nhật admin_service.py để xử lý invite và assign role qua UserRoleLink
+- [ ] Nhiệm vụ 2.3: Tạo API endpoint POST /api/v1/admin/invite-staff (thêm vào admin_routes.py)
+- [ ] Nhiệm vụ 2.4: Cập nhật admin_schemas.py với InviteStaffRequest schema
 
 ### Giai Đoạn 3: Tích Hợp & Hoàn Chỉnh
 
-- [ ] Nhiệm vụ 3.1: Tạo component InviteStaffForm trên frontend với validation
+- [ ] Nhiệm vụ 3.1: Tạo component InviteStaffForm trên frontend
 - [ ] Nhiệm vụ 3.2: Tạo API request và tích hợp với backend
-- [ ] Nhiệm vụ 3.3: Thêm trang admin/staff và bảo vệ route với dynamic roles UI
+- [ ] Nhiệm vụ 3.3: Thêm trang admin/staff và bảo vệ route
 
 ## Phụ Thuộc
 
 **Điều gì cần xảy ra theo thứ tự nào?**
 
-- Phụ thuộc nhiệm vụ: Docs refinement trước DB models, DB models trước API, API trước frontend, auth integration song song với API.
-- Phụ thuộc bên ngoài: Supabase service_role key, email templates, UI design approval.
+- Phụ thuộc nhiệm vụ: Tạo UserRoleLink trước, sau đó cập nhật logic service, API trước frontend.
+- Phụ thuộc bên ngoài: Supabase service_role key, email templates (đã có sẵn).
 
 ## Thời Gian & Ước Tính
 
 **Khi nào mọi thứ sẽ hoàn thành?**
 
-- Nỗ lực ước tính: 0.5 ngày docs, 1 ngày DB, 2-3 ngày backend, 1-2 ngày frontend.
-- Ngày mục tiêu: Hoàn thành trong tuần này, bắt đầu từ docs refinement.
+- Nỗ lực ước tính: 2-3 ngày cho backend (tạo models, migration, cập nhật logic), 1-2 ngày cho frontend.
+- Ngày mục tiêu: Hoàn thành trong tuần này.
 
 ## Rủi Ro & Giảm Thiểu
 
 **Điều gì có thể sai sót?**
 
-- Rủi ro: Supabase invite API thay đổi, email không gửi được, migration data loss.
-- Giảm thiểu: Test với email thật, backup DB trước migration, review docs kỹ trước implement.
+- Rủi ro: Migration conflict với data hiện tại (Profile.role), Supabase invite API thay đổi, email không gửi được, logic nhiều-nhiều phức tạp hơn.
+- Giảm thiểu: Backup data trước migration, test với email thật, có fallback manual, migrate data từ Profile.role sang UserRoleLink.
 
 ## Tài Nguyên Cần Thiết
 
 **Chúng ta cần gì để thành công?**
 
-- Thành viên: Developer backend và frontend, reviewer cho docs.
-- Công cụ: VS Code, Supabase dashboard, Mermaid for diagrams.
+- Thành viên: Developer backend và frontend.
+- Công cụ: VS Code, Supabase dashboard.

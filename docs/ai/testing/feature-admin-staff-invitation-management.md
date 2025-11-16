@@ -56,10 +56,9 @@ description: Xác định cách tiếp cận kiểm tra, trường hợp kiểm 
 
 - Chạy pytest với coverage.
 
-## Kiểm Tra Hiệu Suất
+## Kiểm Tra Thủ Công
 
-**Chúng ta xác thực hiệu suất như thế nào?**
+**Điều gì cần xác nhận của con người?**
 
-- Kịch bản load: 100 invites đồng thời, measure response time.
-- Baseline: <2s average, <5s p95.
-- Tools: Locust hoặc Artillery for load testing.
+- Nhận email mời và thông báo.
+- UI form invite hoạt động đúng.

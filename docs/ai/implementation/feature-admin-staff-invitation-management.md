@@ -28,26 +28,11 @@ description: Ghi chú triển khai kỹ thuật, mẫu và hướng dẫn mã
 
 - Xử lý invite: Kiểm tra user tồn tại, gọi supabase.auth.admin.inviteUserByEmail với metadata.
 - Gán role: Thêm record vào UserRoleLink, gửi email thông báo.
-- Ví dụ code:
-  ```python
-  # In admin_service.py
-  def invite_staff_service(email: str, role: str, session: Session):
-      user = supabase_admin.auth.admin.get_user_by_email(email)
-      if user:
-          # Assign role
-          user_role = UserRoleLink(user_id=user.id, role_name=role)
-          session.add(user_role)
-          # Send notification email
-      else:
-          # Invite new
-          supabase_admin.auth.admin.invite_user_by_email(email, {"role_to_assign": role})
-  ```
 
 ### Mẫu & Thực Tiễn Tốt Nhất
 
 - Sử dụng SQLModel cho models, Pydantic cho schemas.
 - Validate input với Field validators.
-- Async for I/O operations nếu cần.
 
 ## Điểm Tích Hợp
 
