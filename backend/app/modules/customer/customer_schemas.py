@@ -13,7 +13,7 @@ class ProfileBase(BaseModel):
     phone: str | None = Field(None, pattern=r"^\+?\d{10,15}$")
     birth_date: date | None = Field(None, ge=date(1900, 1, 1))
     avatar_url: str | None = None
-    role: str = "customer"
+    roles: list[str] = ["customer"]  # List of roles from UserRoleLink
 
 
 class ProfileResponse(ProfileBase):

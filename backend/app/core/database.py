@@ -3,8 +3,8 @@
 import time
 from contextlib import contextmanager
 from typing import Generator
-from sqlmodel import create_engine, text
-from sqlalchemy.orm import sessionmaker, Session
+from sqlmodel import create_engine, Session, text
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 from tenacity import (
     retry,
@@ -33,8 +33,10 @@ engine = create_engine(
     echo=settings.db_echo if hasattr(settings, "db_echo") else False,
 )
 
-# Tạo session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Tạo session factory với SQLModel Session
+SessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine, class_=Session
+)
 
 
 @retry(
