@@ -16,7 +16,7 @@ feature: backend-foundation
 ```mermaid
 graph TD
     Client[Next.js Frontend<br/>localhost:3000] -->|HTTP/HTTPS| FastAPI[FastAPI Backend<br/>localhost:8000]
-    FastAPI -->|SQLModel Async| Supabase[(Supabase PostgreSQL<br/>Database)]
+    FastAPI -->|SQLModel Sync| Supabase[(Supabase PostgreSQL<br/>Database)]
     FastAPI -->|redis-py| Redis[(Redis Cache<br/>localhost:6379)]
     FastAPI -->|Health Check| HealthMonitor[Health Check System]
     HealthMonitor -->|Check| Supabase
@@ -71,15 +71,15 @@ graph TD
 
 ### Lựa chọn stack công nghệ và lý do
 
-| Công nghệ         | Lý do chọn                                                     |
-| ----------------- | -------------------------------------------------------------- |
-| **FastAPI**       | High performance, async support, auto docs, type hints         |
-| **Pydantic**      | Data validation, settings management, tích hợp tốt với FastAPI |
-| **SQLModel**      | Kết hợp SQLAlchemy + Pydantic, async support, type-safe        |
-| **asyncpg**       | Async PostgreSQL driver, performance cao                       |
-| **redis-py**      | Official Redis client, async support                           |
-| **python-dotenv** | Load environment variables từ .env                             |
-| **uvicorn**       | ASGI server, production-ready                                  |
+| Công nghệ           | Lý do chọn                                                     |
+| ------------------- | -------------------------------------------------------------- |
+| **FastAPI**         | High performance, async support, auto docs, type hints         |
+| **Pydantic**        | Data validation, settings management, tích hợp tốt với FastAPI |
+| **SQLModel**        | Kết hợp SQLAlchemy + Pydantic, type-safe (sync mode)           |
+| **psycopg2-binary** | Sync PostgreSQL driver, ổn định và hỗ trợ chính thức           |
+| **redis-py**        | Official Redis client, async support                           |
+| **python-dotenv**   | Load environment variables từ .env                             |
+| **uvicorn**         | ASGI server, production-ready                                  |
 
 ## Mô Hình Dữ Liệu
 
@@ -289,18 +289,19 @@ GET /openapi.json - OpenAPI schema
 
 **Trách nhiệm:**
 
-- Create async SQLAlchemy engine
+- Create SQLAlchemy engine với sync mode
 - Manage connection pool
-- Provide async session factory
+- Provide session factory với sync operations
 - Health check queries
+- Wrap sync DB operations trong asyncio.run_in_executor() cho FastAPI async compatibility
 
 **Key Functions:**
 
 ```python
-async def get_async_session() -> AsyncSession
-async def check_database_health() -> tuple[bool, float]
-async def init_db() -> None
-async def close_db() -> None
+def get_session() -> Session
+def check_database_health() -> tuple[bool, float]
+def init_db() -> None
+def close_db() -> None
 ```
 
 ### 4. Redis Layer (`app/redis/client.py`, `app/redis/helpers.py`)
@@ -357,22 +358,22 @@ class ValidationException(ZenSpaException)
 
 **Tại sao chúng ta chọn cách tiếp cận này?**
 
-### 1. Async Everywhere
+### 1. Sync Database với Async Compatibility
 
-**Quyết định:** Sử dụng async/await cho tất cả I/O operations
+**Quyết định:** Sử dụng SQLModel sync mode cho database operations, wrap trong asyncio.run_in_executor() cho FastAPI async
 
 **Lý do:**
 
-- FastAPI hỗ trợ async native
-- Performance tốt hơn cho I/O-bound operations
-- Scalability cao hơn
+- SQLModel sync mode được hỗ trợ chính thức và ổn định
+- psycopg2-binary reliable hơn asyncpg trong production
+- Async compatibility qua thread pool để maintain FastAPI async benefits
 - Chuẩn bị cho real-time features (Socket.io)
 
 **Trade-offs:**
 
-- Code phức tạp hơn một chút
-- Debugging khó hơn sync code
-- ✅ Performance gain đáng kể
+- Thread pool overhead nhỏ
+- Code phức tạp hơn pure async
+- ✅ Stability và reliability cao hơn
 
 ### 2. Pydantic Settings cho Configuration
 
@@ -725,14 +726,14 @@ from sqlalchemy.exc import OperationalError, DBAPIError
     retry=retry_if_exception_type((OperationalError, DBAPIError)),
     reraise=True
 )
-async def init_db() -> None:
+def init_db() -> None:
     """
     Initialize database with retry mechanism.
     Retries 3 times with exponential backoff (2s, 4s, 8s).
     """
     try:
-        async with engine.begin() as conn:
-            await conn.execute(text("SELECT 1"))
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
         logger.info("✅ Database connected successfully")
     except Exception as e:
         logger.error(f"❌ Database connection failed: {e}")
@@ -743,23 +744,23 @@ async def init_db() -> None:
 
 ```python
 # app/core/database.py
-from contextlib import asynccontextmanager
+from contextlib import contextmanager
 
-@asynccontextmanager
-async def get_async_session():
+@contextmanager
+def get_session():
     """
-    Async context manager for database sessions.
+    Context manager for database sessions.
     Automatically commits on success, rolls back on error.
     """
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-            await session.commit()
-        except Exception:
-            await session.rollback()
-            raise
-        finally:
-            await session.close()
+    session = SessionLocal()
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
 ```
 
 ## Redis Fallback Strategy
@@ -959,7 +960,7 @@ from app.core.config import settings
 # Set SQLModel metadata for autogenerate
 target_metadata = SQLModel.metadata
 
-# Use async engine
+# Use sync engine
 connectable = engine
 ```
 
