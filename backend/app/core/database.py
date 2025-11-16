@@ -3,10 +3,15 @@
 import time
 from contextlib import contextmanager
 from typing import Generator
-from sqlalchemy import create_engine, text
+from sqlmodel import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
 from sqlalchemy.exc import OperationalError, DBAPIError
 
 from app.core.config import settings
@@ -18,10 +23,14 @@ from app.core.logging import logger
 engine = create_engine(
     settings.database_url,
     poolclass=QueuePool,
-    pool_size=settings.db_pool_size if hasattr(settings, 'db_pool_size') else 10,
-    max_overflow=settings.db_max_overflow if hasattr(settings, 'db_max_overflow') else 10,
-    pool_timeout=settings.db_pool_timeout if hasattr(settings, 'db_pool_timeout') else 30,
-    echo=settings.db_echo if hasattr(settings, 'db_echo') else False,
+    pool_size=settings.db_pool_size if hasattr(settings, "db_pool_size") else 10,
+    max_overflow=(
+        settings.db_max_overflow if hasattr(settings, "db_max_overflow") else 10
+    ),
+    pool_timeout=(
+        settings.db_pool_timeout if hasattr(settings, "db_pool_timeout") else 30
+    ),
+    echo=settings.db_echo if hasattr(settings, "db_echo") else False,
 )
 
 # Tạo session factory
@@ -32,7 +41,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=2, max=10),
     retry=retry_if_exception_type((OperationalError, DBAPIError)),
-    reraise=True
+    reraise=True,
 )
 def init_db() -> None:
     """
@@ -55,19 +64,14 @@ def close_db() -> None:
     logger.info("Kết nối database đã đóng")
 
 
-@contextmanager
-def get_session() -> Generator[Session, None, None]:
+def get_db() -> Generator[Session, None, None]:
     """
-    Context manager cho database sessions.
-    Tự động commit khi thành công, rollback khi lỗi.
+    Dependency cho FastAPI.
+    Cung cấp database session, tự động close sau request.
     """
     session = SessionLocal()
     try:
         yield session
-        session.commit()
-    except Exception:
-        session.rollback()
-        raise
     finally:
         session.close()
 

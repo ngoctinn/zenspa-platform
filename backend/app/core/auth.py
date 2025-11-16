@@ -33,12 +33,11 @@ def verify_jwt(token: str) -> dict:
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
 ) -> dict:
-    """Dependency để lấy thông tin user hiện tại từ JWT."""
+    """Dependency để lấy thông tin cơ bản của user hiện tại từ JWT."""
     payload = verify_jwt(credentials.credentials)
     user = {
         "id": payload["sub"],
         "email": payload.get("email"),
         "full_name": payload.get("user_metadata", {}).get("full_name"),
-        "role": payload.get("user_metadata", {}).get("role", "customer"),
     }
     return user

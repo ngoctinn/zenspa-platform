@@ -20,9 +20,12 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 
 # For SQLModel support (when models are added)
-# from sqlmodel import SQLModel
-# target_metadata = SQLModel.metadata
-target_metadata = None
+from sqlmodel import SQLModel
+
+# Import all models to register them with SQLModel.metadata
+from app.modules.customer.customer_models import Profile  # noqa: F401
+
+target_metadata = SQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -66,12 +69,11 @@ def run_migrations_online() -> None:
 
     # Use sync engine for SQLModel
     from sqlalchemy import create_engine
-    connectable = create_engine(settings.DATABASE_URL, echo=False)
+
+    connectable = create_engine(settings.database_url, echo=False)
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

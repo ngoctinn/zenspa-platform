@@ -1,5 +1,6 @@
 "use client";
 
+import { getUserProfile, updateUserProfile } from "@/apiRequests/user";
 import { InputWithIcon } from "@/components/common/InputWithIcon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -41,15 +42,21 @@ export default function ProfileForm() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data.user) {
-        setUser(data.user);
-        // Mock profile data, replace with API call
-        form.setValue("email", data.user.email);
-        form.setValue("fullName", "Nguyễn Văn A");
-        form.setValue("phone", "0123456789");
-        form.setValue("birthDate", "1990-01-01");
-        setAvatarUrl("https://via.placeholder.com/150");
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data.user) {
+          setUser(data.user);
+          // Load profile from API
+          const profile = await getUserProfile();
+          form.setValue("email", profile.email);
+          form.setValue("fullName", profile.full_name || "");
+          form.setValue("phone", profile.phone || "");
+          form.setValue("birthDate", profile.birth_date || "");
+          setAvatarUrl(profile.avatar_url || "");
+        }
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+        toast.error("Không thể tải hồ sơ");
       }
     };
     getUser();
@@ -57,9 +64,15 @@ export default function ProfileForm() {
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
-      console.log("Updating profile:", data);
-      // TODO: Send to API
+      await updateUserProfile({
+        full_name: data.fullName || null,
+        phone: data.phone || null,
+        birth_date: data.birthDate || null,
+        avatar_url: avatarUrl || null,
+      });
       toast.success("Cập nhật hồ sơ thành công!");
+      // Reload page to sync profile data in navbar
+      window.location.reload();
     } catch (error) {
       console.error("Update error:", error);
       toast.error("Lỗi cập nhật hồ sơ");
@@ -88,6 +101,7 @@ export default function ProfileForm() {
 
       setAvatarUrl(urlData.publicUrl);
       toast.success("Upload avatar thành công!");
+      // Note: Avatar URL will be saved when form is submitted
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Lỗi upload avatar");

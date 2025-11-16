@@ -9,7 +9,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
+import { getUserProfile } from "@/apiRequests/user";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,13 +29,42 @@ interface UserProfileMenuProps {
   onLogout?: () => void;
 }
 
+interface UserProfileMenuProps {
+  user: User;
+  onLogout?: () => void;
+}
+
+interface Profile {
+  full_name: string | null;
+  avatar_url: string | null;
+}
+
 // Bạn không cần 'listItems' nữa nếu dùng cách này
 // const listItems = [ ... ];
 
 export const UserProfileMenu = ({ user, onLogout }: UserProfileMenuProps) => {
-  const fullname = user.user_metadata?.full_name || "User";
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const data = await getUserProfile();
+        setProfile(data);
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfile();
+  }, []);
+
+  const fullname = loading
+    ? "Loading..."
+    : profile?.full_name || user.user_metadata?.full_name || "User";
   const email = user.email || "";
-  const avatarUrl = user.user_metadata?.avatar_url;
+  const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url;
 
   return (
     <DropdownMenu>
