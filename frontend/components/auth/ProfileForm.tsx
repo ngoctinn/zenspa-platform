@@ -38,6 +38,13 @@ export default function ProfileForm() {
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
+    mode: "onSubmit",
+    defaultValues: {
+      email: "",
+      fullName: "",
+      phone: "",
+      birthDate: "",
+    },
   });
 
   useEffect(() => {
@@ -71,8 +78,13 @@ export default function ProfileForm() {
         avatar_url: avatarUrl || null,
       });
       toast.success("Cập nhật hồ sơ thành công!");
-      // Reload page to sync profile data in navbar
-      window.location.reload();
+      // Reload profile data to sync with navbar
+      const updatedProfile = await getUserProfile();
+      form.setValue("email", updatedProfile.email);
+      form.setValue("fullName", updatedProfile.full_name || "");
+      form.setValue("phone", updatedProfile.phone || "");
+      form.setValue("birthDate", updatedProfile.birth_date || "");
+      setAvatarUrl(updatedProfile.avatar_url || "");
     } catch (error) {
       console.error("Update error:", error);
       toast.error("Lỗi cập nhật hồ sơ");

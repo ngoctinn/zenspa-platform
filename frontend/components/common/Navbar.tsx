@@ -11,13 +11,16 @@ import { useEffect, useState } from "react";
 
 const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [notificationCount] = useState(5); // Mock count, sẽ thay bằng API sau
   const pathname = usePathname();
 
   useEffect(() => {
     const getUser = async () => {
+      setLoading(true);
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
+      setLoading(false);
     };
     getUser();
   }, []);
@@ -183,7 +186,12 @@ const Navbar = () => {
 
           {/* Actions & User Area */}
           <div className="ml-auto">
-            {user ? (
+            {loading ? (
+              <div className="flex items-center space-x-4">
+                <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
+                <div className="w-20 h-4 bg-gray-300 rounded animate-pulse"></div>
+              </div>
+            ) : user ? (
               <div className="flex items-center space-x-4">
                 <NotificationIcon count={notificationCount} />
                 <UserProfileMenu user={user} onLogout={handleLogout} />

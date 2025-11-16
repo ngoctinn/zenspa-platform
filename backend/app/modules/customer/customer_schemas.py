@@ -1,7 +1,7 @@
 """Schemas khách hàng sử dụng Pydantic."""
 
 from datetime import date, datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from uuid import UUID
 
 
@@ -10,8 +10,8 @@ class ProfileBase(BaseModel):
 
     email: str
     full_name: str | None = None
-    phone: str | None = None
-    birth_date: date | None = None
+    phone: str | None = Field(None, pattern=r"^\+?\d{10,15}$")
+    birth_date: date | None = Field(None, ge=date(1900, 1, 1))
     avatar_url: str | None = None
     role: str = "customer"
 
@@ -28,6 +28,6 @@ class ProfileUpdate(BaseModel):
     """Schema cập nhật cho thay đổi một phần."""
 
     full_name: str | None = None
-    phone: str | None = None
-    birth_date: date | None = None
+    phone: str | None = Field(None, pattern=r"^\+?\d{10,15}$")
+    birth_date: date | None = Field(None, ge=date(1900, 1, 1))
     avatar_url: str | None = None
