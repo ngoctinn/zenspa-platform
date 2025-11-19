@@ -1,4 +1,4 @@
-"""Routes API cho user."""
+"""Routes API cho user - Consolidated từ admin và customer routes."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
@@ -21,13 +21,14 @@ from .user_service import (
     invite_staff_service,
 )
 
-# Separate routers for different concerns
-user_router = APIRouter()
+# Router cho user endpoints (profile management)
+router = APIRouter()
+
+# Router cho admin endpoints (role & staff management)
 admin_router = APIRouter()
 
 
-# User endpoints
-@user_router.get("/me")
+@router.get("/me")
 async def get_user_profile(
     current_user: dict = Depends(get_current_user),
     session: Session = Depends(get_db),
@@ -58,7 +59,7 @@ async def get_user_profile(
     return profile_data
 
 
-@user_router.put("/me", response_model=ProfileResponse)
+@router.put("/me", response_model=ProfileResponse)
 async def update_user_profile(
     update_data: ProfileUpdate,
     current_user: dict = Depends(get_current_user),
@@ -71,7 +72,7 @@ async def update_user_profile(
     return update_profile(session, profile, update_data.dict(exclude_unset=True))
 
 
-# Admin endpoints
+# Admin endpoints (role & staff management)
 @admin_router.put("/users/{user_id}/role")
 async def update_user_role(
     user_id: str,

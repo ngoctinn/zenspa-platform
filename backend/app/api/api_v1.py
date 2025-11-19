@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 from app.api.health import router as health_router
-from app.api.admin import router as admin_router
-from app.api.users import router as users_router
+from app.modules.user.user_routes import router as users_router
+from app.modules.user.user_routes import admin_router
 
 # Tạo router có version
 api_v1_router = APIRouter(prefix="/api/v1", tags=["v1"])
