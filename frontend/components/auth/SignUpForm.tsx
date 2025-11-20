@@ -103,7 +103,7 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
                     <FormControl>
                       <InputWithIcon
                         type="text"
-                        placeholder="Nguyễn Văn A"
+                        placeholder="Nhập họ và tên của bạn"
                         {...field}
                       />
                     </FormControl>
@@ -121,7 +121,7 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
                     <FormControl>
                       <InputWithIcon
                         type="email"
-                        placeholder="example@email.com"
+                        placeholder="Nhập email của bạn"
                         {...field}
                       />
                     </FormControl>

@@ -90,7 +90,7 @@ const ResetPasswordForm = ({
                     <FormControl>
                       <InputWithIcon
                         type="email"
-                        placeholder="example@email.com"
+                        placeholder="Nhập email của bạn"
                         {...field}
                       />
                     </FormControl>

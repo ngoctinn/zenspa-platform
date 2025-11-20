@@ -2,6 +2,7 @@
 
 import { getUserProfile } from "@/apiRequests/user";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useState } from "react";
 
 export default function TestPage() {
@@ -34,6 +35,7 @@ export default function TestPage() {
           {result}
         </pre>
       )}
+      <Card></Card>
     </div>
   );
 }

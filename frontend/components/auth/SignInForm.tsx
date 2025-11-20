@@ -86,7 +86,7 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
                   <FormControl>
                     <InputWithIcon
                       type="email"
-                      placeholder="example@email.com"
+                      placeholder="Nhập email của bạn"
                       {...field}
                     />
                   </FormControl>
@@ -102,7 +102,10 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
                 <FormItem>
                   <FormLabel>{authMessages.labels.password}</FormLabel>
                   <FormControl>
-                    <InputPassword placeholder="Nhập mật khẩu" {...field} />
+                    <InputPassword
+                      placeholder="Nhập mật khẩu của bạn"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

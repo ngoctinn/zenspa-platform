@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 const HeroSection = () => {
@@ -26,71 +27,107 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="min-h-[80vh] flex items-center bg-gradient-to-r from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <section className="relative w-full pt-8 pb-12 lg:pt-12 lg:pb-20 bg-background overflow-hidden">
+      <div className="container px-4 md:px-6 mx-auto">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           {/* Left Content */}
-          <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-1000">
-            {/* Headline */}
-            <h1 className="text-3xl lg:text-5xl font-extrabold leading-tight text-primary">
-              Chăm Sóc Toàn Diện,
-              <br />
-              <span className="text-primary">
-                Đánh Thức Vẻ Đẹp Tiềm Ẩn Của Bạn
-              </span>
-            </h1>
+          <div className="flex flex-col justify-center space-y-8 animate-in fade-in slide-in-from-left-8 duration-500 fill-mode-both  lg:-mt-30">
+            <div className="space-y-4">
+              <h1 className="text-4xl font-extrabold tracking-tighter sm:text-3xl md:text-4xl lg:text-4xl/none">
+                <span className="text-primary">Tinh tế</span>{" "}
+                <span className="text-primary">-</span>{" "}
+                <span className="text-thirdary ">Riêng tư</span>{" "}
+                <span className="text-thirdary ">-</span>{" "}
+                <span className="text-quaternary ">Thư giãn</span>
+              </h1>
+              <p className="max-w-[600px] text-muted-foreground md:text-2xl leading-relaxed">
+                Kết hợp tinh tế giữa kỹ thuật trị liệu truyền thống và công nghệ
+                chăm sóc da hiện đại. Chúng tôi mang đến lộ trình chuyên sâu
+                giúp bạn phục hồi cơ thể, tái tạo năng lượng và tìm lại sự cân
+                bằng.
+              </p>
+            </div>
 
-            {/* Sub-description */}
-            <p className="text-lg text-slate-600 max-w-lg">
-              Trải nghiệm các liệu pháp Spa cao cấp từ thư giãn cơ thể đến chăm
-              sóc da chuyên sâu. Đội ngũ chuyên gia tận tâm, không gian yên bình
-              sẽ mang đến cho bạn những khoảnh khắc tuyệt vời nhất.
-            </p>
-
-            {/* CTA */}
-            <Button
-              size="lg"
-              className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-10 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 animate-bounce"
-            >
-              Đặt Lịch Ngay!
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 rounded-full text-base font-medium shadow-md transition-all hover:scale-105"
+                asChild
+              >
+                <Link href="/booking">Đặt Lịch Ngay</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 px-8 rounded-full text-base font-medium border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary transition-all hover:scale-105"
+                asChild
+              >
+                <Link href="#services">Xem Dịch Vụ</Link>
+              </Button>
+            </div>
           </div>
 
-          {/* Right Images - Mosaic Grid Layout */}
+          {/* Right Images - Masonry Grid Layout */}
           <div
             ref={ref}
-            className={`flex gap-3 transition-opacity duration-1000 ${
-              isVisible ? "opacity-100" : "opacity-0"
+            className={`relative grid grid-cols-2 gap-6 transition-all duration-1000 ease-out ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
             }`}
           >
-            {/* Ảnh 1: Không gian (Chủ đạo - Vertical) */}
-            <div className="flex-1">
-              <Image
-                width={400}
-                height={600}
-                src="https://i.pinimg.com/736x/f0/d2/77/f0d2774f08cee3574f17049b68b599d7.jpg"
-                alt="Spa ambiance"
-                className="w-full h-full object-cover rounded-lg shadow-lg animate-in fade-in transition-all duration-300 hover:scale-103"
-              />
+            {/* Fade Overlay Top */}
+            <div className="absolute -top-4 left-0 right-0 h-32 bg-gradient-to-b from-background via-background/90 to-transparent z-20 pointer-events-none" />
+
+            {/* Fade Overlay Bottom */}
+            <div className="absolute -bottom-4 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/90 to-transparent z-20 pointer-events-none" />
+
+            {/* Column 1 */}
+            <div className="grid gap-6">
+              <div className="relative h-[160px] sm:h-[200px] rounded-2xl overflow-hidden shadow-lg">
+                <Image
+                  src="https://i.pinimg.com/736x/f0/d2/77/f0d2774f08cee3574f17049b68b599d7.jpg"
+                  alt="Spa ambiance"
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+              <div className="relative h-[200px] sm:h-[260px] rounded-2xl overflow-hidden shadow-lg">
+                <Image
+                  src="https://i.pinimg.com/736x/9f/3e/98/9f3e987e49a27f81f04e02a7c6bc9f16.jpg"
+                  alt="Spa treatment"
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+              <div className="relative h-[140px] sm:h-[180px] rounded-2xl overflow-hidden shadow-lg">
+                <Image
+                  src="https://i.pinimg.com/736x/f0/d2/77/f0d2774f08cee3574f17049b68b599d7.jpg"
+                  alt="Spa detail"
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-700"
+                />
+              </div>
             </div>
-            {/* Right Column: Ảnh 2 và 3 */}
-            <div className="flex flex-col gap-3">
-              {/* Ảnh 2: Liệu trình (Square) */}
-              <Image
-                width={200}
-                height={200}
-                src="https://i.pinimg.com/736x/9f/3e/98/9f3e987e49a27f81f04e02a7c6bc9f16.jpg"
-                alt="Spa treatment"
-                className="w-full h-full object-cover rounded-lg shadow-lg animate-in fade-in delay-100 transition-all duration-300 hover:scale-103"
-              />
-              {/* Ảnh 3: Chi tiết (Square) */}
-              <Image
-                width={200}
-                height={200}
-                src="https://i.pinimg.com/736x/f0/d2/77/f0d2774f08cee3574f17049b68b599d7.jpg"
-                alt="Spa detail"
-                className="w-full h-full object-cover rounded-lg shadow-lg animate-in fade-in delay-200 transition-all duration-300 hover:scale-103"
-              />
+
+            {/* Column 2 */}
+            <div className="grid gap-6 pt-12 sm:pt-16">
+              <div className="relative h-[260px] sm:h-[320px] rounded-2xl overflow-hidden shadow-lg">
+                <Image
+                  src="https://i.pinimg.com/736x/9f/3e/98/9f3e987e49a27f81f04e02a7c6bc9f16.jpg"
+                  alt="Facial treatment"
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+              <div className="relative h-[160px] sm:h-[200px] rounded-2xl overflow-hidden shadow-lg">
+                <Image
+                  src="https://i.pinimg.com/736x/f0/d2/77/f0d2774f08cee3574f17049b68b599d7.jpg"
+                  alt="Relaxing environment"
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-700"
+                />
+              </div>
             </div>
           </div>
         </div>
