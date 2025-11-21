@@ -90,20 +90,27 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
 
   return (
     <>
-      <Card className="shadow-lg">
-        <CardContent className="p-6">
+      <Card className="shadow-xl border-0 sm:min-w-[400px]">
+        <CardContent className="p-8">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+              noValidate
+            >
               <FormField
                 control={form.control}
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{authMessages.labels.fullName}</FormLabel>
+                    <FormLabel className="text-base font-medium">
+                      {authMessages.labels.fullName}
+                    </FormLabel>
                     <FormControl>
                       <InputWithIcon
                         type="text"
                         placeholder="Nhập họ và tên của bạn"
+                        className="h-12 text-base"
                         {...field}
                       />
                     </FormControl>
@@ -117,11 +124,14 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{authMessages.labels.email}</FormLabel>
+                    <FormLabel className="text-base font-medium">
+                      {authMessages.labels.email}
+                    </FormLabel>
                     <FormControl>
                       <InputWithIcon
                         type="email"
                         placeholder="Nhập email của bạn"
+                        className="h-12 text-base"
                         {...field}
                       />
                     </FormControl>
@@ -135,10 +145,13 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{authMessages.labels.password}</FormLabel>
+                    <FormLabel className="text-base font-medium">
+                      {authMessages.labels.password}
+                    </FormLabel>
                     <FormControl>
                       <InputPassword
                         placeholder="Nhập mật khẩu (8-30 ký tự)"
+                        className="h-12 text-base"
                         {...field}
                       />
                     </FormControl>
@@ -152,10 +165,13 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{authMessages.labels.confirmPassword}</FormLabel>
+                    <FormLabel className="text-base font-medium">
+                      {authMessages.labels.confirmPassword}
+                    </FormLabel>
                     <FormControl>
                       <InputPassword
                         placeholder="Xác nhận mật khẩu"
+                        className="h-12 text-base"
                         {...field}
                       />
                     </FormControl>
@@ -166,12 +182,12 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full h-11 text-base font-semibold shadow-md hover:shadow-lg transition-all"
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? (
                   <>
-                    <LoaderCircleIcon className="animate-spin mr-2 h-4 w-4" />
+                    <LoaderCircleIcon className="animate-spin mr-2 h-5 w-5" />
                     Đang đăng ký...
                   </>
                 ) : (

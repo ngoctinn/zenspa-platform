@@ -10,7 +10,7 @@ export const authMessages = {
     fullName: "Họ và tên",
     newPassword: "Mật khẩu mới",
     confirmNewPassword: "Xác nhận mật khẩu mới",
-    rememberMe: "Ghi nhớ đăng nhập",
+    rememberMe: "Ghi nhớ",
     forgotPassword: "Quên mật khẩu?",
     signIn: "Đăng nhập",
     signUp: "Đăng ký",

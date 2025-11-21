@@ -16,12 +16,9 @@ const SignUpPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-[var(--foreground)]">
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">
             Đăng ký tài khoản
           </h2>
-          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-            Tạo tài khoản mới cho ZenSpa
-          </p>
         </div>
 
         <SignUpForm onSignUpSuccess={handleSignUpSuccess} />

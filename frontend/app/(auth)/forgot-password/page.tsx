@@ -20,12 +20,9 @@ const ForgotPasswordPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-[var(--foreground)]">
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">
             Quên mật khẩu
           </h2>
-          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-            Nhập email để nhận liên kết đặt lại mật khẩu
-          </p>
         </div>
 
         <ResetPasswordForm

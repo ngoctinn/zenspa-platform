@@ -73,20 +73,27 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
   };
 
   return (
-    <Card className="shadow-lg">
-      <CardContent className="p-6">
+    <Card className="shadow-xl border-0 sm:min-w-[400px]">
+      <CardContent className="p-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4"
+            noValidate
+          >
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{authMessages.labels.email}</FormLabel>
+                  <FormLabel className="text-base font-medium">
+                    {authMessages.labels.email}
+                  </FormLabel>
                   <FormControl>
                     <InputWithIcon
                       type="email"
                       placeholder="Nhập email của bạn"
+                      className="h-11 text-base"
                       {...field}
                     />
                   </FormControl>
@@ -100,10 +107,13 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{authMessages.labels.password}</FormLabel>
+                  <FormLabel className="text-base font-medium">
+                    {authMessages.labels.password}
+                  </FormLabel>
                   <FormControl>
                     <InputPassword
                       placeholder="Nhập mật khẩu của bạn"
+                      className="h-11 text-base"
                       {...field}
                     />
                   </FormControl>
@@ -112,7 +122,7 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
               )}
             />
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-2">
               <FormField
                 control={form.control}
                 name="remember"
@@ -122,8 +132,12 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
                       id="remember"
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      className="h-5 w-5"
                     />
-                    <FormLabel htmlFor="remember" className="text-sm">
+                    <FormLabel
+                      htmlFor="remember"
+                      className="text-sm font-normal cursor-pointer"
+                    >
                       {authMessages.labels.rememberMe}
                     </FormLabel>
                   </div>
@@ -132,7 +146,7 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
               <Button
                 type="button"
                 variant="link"
-                className="p-0 h-auto"
+                className="p-0 h-auto text-sm font-medium text-primary hover:text-primary/80"
                 onClick={onForgotPassword}
               >
                 {authMessages.labels.forgotPassword}
@@ -141,12 +155,12 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-11 text-base font-semibold shadow-md hover:shadow-lg transition-all"
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? (
                 <>
-                  <LoaderCircleIcon className="animate-spin mr-2 h-4 w-4" />
+                  <LoaderCircleIcon className="animate-spin mr-2 h-5 w-5" />
                   Đang đăng nhập...
                 </>
               ) : (

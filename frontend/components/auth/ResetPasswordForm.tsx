@@ -77,20 +77,27 @@ const ResetPasswordForm = ({
 
   return (
     <>
-      <Card className="shadow-lg">
-        <CardContent className="p-6">
+      <Card className="shadow-xl border-0 sm:min-w-[400px]">
+        <CardContent className="p-8">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+              noValidate
+            >
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{authMessages.labels.email}</FormLabel>
+                    <FormLabel className="text-base font-medium">
+                      {authMessages.labels.email}
+                    </FormLabel>
                     <FormControl>
                       <InputWithIcon
                         type="email"
                         placeholder="Nhập email của bạn"
+                        className="h-11 text-base"
                         {...field}
                       />
                     </FormControl>
@@ -101,12 +108,12 @@ const ResetPasswordForm = ({
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full h-11 text-base font-semibold shadow-md hover:shadow-lg transition-all"
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? (
                   <>
-                    <LoaderCircleIcon className="animate-spin mr-2 h-4 w-4" />
+                    <LoaderCircleIcon className="animate-spin mr-2 h-5 w-5" />
                     Đang gửi...
                   </>
                 ) : (
@@ -118,7 +125,7 @@ const ResetPasswordForm = ({
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full"
+                  className="w-full h-11 text-base font-medium"
                   onClick={onBackToSignIn}
                 >
                   {authMessages.labels.backToSignIn}

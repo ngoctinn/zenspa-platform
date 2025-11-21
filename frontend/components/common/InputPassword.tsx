@@ -26,11 +26,14 @@ const InputPassword = forwardRef<
       <Button
         type="button"
         variant="ghost"
-        size="icon"
         onClick={() => setIsVisible((prevState) => !prevState)}
-        className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent"
+        className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 h-full w-10 rounded-l-none hover:bg-transparent"
       >
-        {isVisible ? <EyeOffIcon /> : <EyeIcon />}
+        {isVisible ? (
+          <EyeOffIcon className="size-4" />
+        ) : (
+          <EyeIcon className="size-4" />
+        )}
         <span className="sr-only">
           {isVisible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
         </span>

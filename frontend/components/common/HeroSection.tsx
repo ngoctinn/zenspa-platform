@@ -51,7 +51,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 rounded-full text-base font-medium shadow-md transition-all hover:scale-105"
+                className="h-12 px-8 rounded-full text-base shadow-md hover:scale-105"
                 asChild
               >
                 <Link href="/booking">Đặt Lịch Ngay</Link>
@@ -59,7 +59,7 @@ const HeroSection = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 px-8 rounded-full text-base font-medium border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary transition-all hover:scale-105"
+                className="h-12 px-8 rounded-full text-base border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary hover:scale-105"
                 asChild
               >
                 <Link href="#services">Xem Dịch Vụ</Link>

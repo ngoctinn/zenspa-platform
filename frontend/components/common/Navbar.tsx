@@ -16,10 +16,11 @@ import { supabase } from "@/utils/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { Menu } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const Navbar = () => {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [notificationCount] = useState(5); // Mock count, sẽ thay bằng API sau
@@ -59,6 +60,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    router.push("/signin");
   };
 
   // Xác định className cho header dựa trên trạng thái cuộn

@@ -114,19 +114,26 @@ const SetNewPasswordForm = () => {
   }
 
   return (
-    <Card className="shadow-lg">
-      <CardContent className="p-6">
+    <Card className="shadow-xl border-0 sm:min-w-[400px]">
+      <CardContent className="p-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4"
+            noValidate
+          >
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{authMessages.labels.newPassword}</FormLabel>
+                  <FormLabel className="text-base font-medium">
+                    {authMessages.labels.newPassword}
+                  </FormLabel>
                   <FormControl>
                     <InputPassword
                       placeholder="Nhập mật khẩu mới (8-30 ký tự)"
+                      className="h-12 text-base"
                       {...field}
                     />
                   </FormControl>
@@ -140,12 +147,13 @@ const SetNewPasswordForm = () => {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
+                  <FormLabel className="text-base font-medium">
                     {authMessages.labels.confirmNewPassword}
                   </FormLabel>
                   <FormControl>
                     <InputPassword
                       placeholder="Xác nhận mật khẩu mới"
+                      className="h-12 text-base"
                       {...field}
                     />
                   </FormControl>
@@ -156,12 +164,12 @@ const SetNewPasswordForm = () => {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-11 text-base font-semibold shadow-md hover:shadow-lg transition-all"
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? (
                 <>
-                  <LoaderCircleIcon className="animate-spin mr-2 h-4 w-4" />
+                  <LoaderCircleIcon className="animate-spin mr-2 h-5 w-5" />
                   Đang đặt mật khẩu...
                 </>
               ) : (
