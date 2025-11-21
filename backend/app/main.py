@@ -14,7 +14,7 @@ from app.core.exceptions import (
     zenspa_exception_handler,
     validation_exception_handler,
     general_exception_handler,
-    ZenSpaException
+    ZenSpaException,
 )
 from app.core.middleware import SecurityHeadersMiddleware, RequestIDMiddleware
 from app.api.api_v1 import api_v1_router
@@ -78,7 +78,7 @@ app.add_middleware(
 if settings.environment == "production":
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=["zenspa-backend.com"]  # Cập nhật với domain thực tế
+        allowed_hosts=["zenspa-backend.com"],  # Cập nhật với domain thực tế
     )
 
 # Đăng ký exception handlers
@@ -90,11 +90,7 @@ app.add_exception_handler(Exception, general_exception_handler)
 app.include_router(api_v1_router)
 
 # Health checks (toàn cục, không versioned)
-app.include_router(
-    health_router,
-    prefix="/health",
-    tags=["health"]
-)
+app.include_router(health_router, prefix="/health", tags=["health"])
 
 
 @app.get("/")
@@ -105,7 +101,7 @@ async def root():
         "version": settings.app_version,
         "environment": settings.environment,
         "docs": "/docs",
-        "health": "/health"
+        "health": "/health",
     }
 
 
