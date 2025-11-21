@@ -1,7 +1,8 @@
-"""Dịch vụ user."""
+"""Dịch vụ user (Async)."""
 
 from fastapi import HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 from supabase import create_client
 
 from app.core.config import settings
@@ -13,19 +14,20 @@ supabase_admin = create_client(
 )
 
 
-def get_profile_by_id(session: Session, user_id: str) -> Profile | None:
+async def get_profile_by_id(session: AsyncSession, user_id: str) -> Profile | None:
     """Lấy profile theo ID người dùng."""
-    return session.query(Profile).filter(Profile.id == user_id).first()
+    result = await session.exec(select(Profile).where(Profile.id == user_id))
+    return result.first()
 
 
-def get_profile_with_roles(session: Session, user_id: str) -> dict | None:
+async def get_profile_with_roles(session: AsyncSession, user_id: str) -> dict | None:
     """Lấy profile với list roles từ UserRoleLink."""
-    profile = get_profile_by_id(session, user_id)
+    profile = await get_profile_by_id(session, user_id)
     if not profile:
         return None
 
     # Get roles
-    roles_result = session.exec(
+    roles_result = await session.exec(
         select(UserRoleLink.role_name).where(UserRoleLink.user_id == user_id)
     )
     roles = [row for row in roles_result]
@@ -45,32 +47,37 @@ def get_profile_with_roles(session: Session, user_id: str) -> dict | None:
     }
 
 
-def create_profile(session: Session, profile: Profile) -> Profile:
+async def create_profile(session: AsyncSession, profile: Profile) -> Profile:
     """Tạo profile mới."""
     session.add(profile)
-    session.commit()
-    session.refresh(profile)
+    await session.commit()
+    await session.refresh(profile)
     return profile
 
 
-def update_profile(session: Session, profile: Profile, update_data: dict) -> Profile:
+async def update_profile(
+    session: AsyncSession, profile: Profile, update_data: dict
+) -> Profile:
     """Cập nhật profile với dữ liệu mới."""
     for key, value in update_data.items():
         setattr(profile, key, value)
-    session.commit()
-    session.refresh(profile)
+    await session.commit()
+    await session.refresh(profile)
     return profile
 
 
-def update_user_role_service(user_id: str, new_role: str, session: Session) -> str:
+async def update_user_role_service(
+    user_id: str, new_role: str, session: AsyncSession
+) -> str:
     """Cập nhật role cho user (thêm vào UserRoleLink)."""
     try:
         # Check if role already assigned
-        existing_link = session.exec(
+        result = await session.exec(
             select(UserRoleLink).where(
                 UserRoleLink.user_id == user_id, UserRoleLink.role_name == new_role
             )
-        ).first()
+        )
+        existing_link = result.first()
         if existing_link:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -82,11 +89,11 @@ def update_user_role_service(user_id: str, new_role: str, session: Session) -> s
         session.add(user_role_link)
 
         # Update or create profile (keep for personal info)
-        target_profile = get_profile_by_id(session, user_id)
+        target_profile = await get_profile_by_id(session, user_id)
         if not target_profile:
             # Get user info from Supabase
             user_info = supabase_admin.auth.admin.get_user_by_id(user_id)
-            target_profile = create_profile(
+            target_profile = await create_profile(
                 session,
                 Profile(
                     id=user_id,
@@ -100,10 +107,10 @@ def update_user_role_service(user_id: str, new_role: str, session: Session) -> s
             user_id, {"user_metadata": {"role": new_role}}  # Keep for compatibility
         )
 
-        session.commit()
+        await session.commit()
         return f"Role {new_role} đã được gán cho user {user_id}"
     except Exception as e:
-        session.rollback()
+        await session.rollback()
         if "404" in str(e) or "not found" in str(e).lower():
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -115,7 +122,7 @@ def update_user_role_service(user_id: str, new_role: str, session: Session) -> s
         )
 
 
-def invite_staff_service(email: str, role: str, session: Session) -> str:
+async def invite_staff_service(email: str, role: str, session: AsyncSession) -> str:
     """Mời staff qua email và gán role."""
     try:
         # Always invite, let Supabase handle if user exists

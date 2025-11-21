@@ -40,7 +40,7 @@ async def health_check() -> HealthCheckResponse:
 )
 async def database_health_check() -> DatabaseHealthResponse:
     """Health check endpoint cho database."""
-    is_healthy, response_time = check_database_health()
+    is_healthy, response_time = await check_database_health()
 
     return DatabaseHealthResponse(
         status="healthy" if is_healthy else "unhealthy",
@@ -84,7 +84,7 @@ async def redis_health_check() -> RedisHealthResponse:
 async def comprehensive_health_check():
     """Health check toàn diện cho tất cả services."""
     # Kiểm tra database
-    db_healthy, db_time = check_database_health()
+    db_healthy, db_time = await check_database_health()
 
     # Kiểm tra Redis
     redis_healthy, redis_time = check_redis_health()

@@ -1,10 +1,11 @@
-"""Routes API cho user - Consolidated từ admin và customer routes."""
+"""Routes API cho user - Consolidated từ admin và customer routes (Async)."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.auth import get_current_user
-from app.core.database import get_db
+from app.core.database import get_async_session
 from .user_models import Profile, UserRoleLink
 from .user_schemas import (
     ProfileResponse,
@@ -31,13 +32,13 @@ admin_router = APIRouter()
 @router.get("/me")
 async def get_user_profile(
     current_user: dict = Depends(get_current_user),
-    session: Session = Depends(get_db),
+    session: AsyncSession = Depends(get_async_session),
 ):
     """Lấy profile của người dùng hiện tại."""
-    profile_data = get_profile_with_roles(session, current_user["id"])
+    profile_data = await get_profile_with_roles(session, current_user["id"])
     if not profile_data:
         # Tạo lazy nếu chưa tồn tại
-        profile = create_profile(
+        profile = await create_profile(
             session,
             Profile(
                 id=current_user["id"],
@@ -63,13 +64,13 @@ async def get_user_profile(
 async def update_user_profile(
     update_data: ProfileUpdate,
     current_user: dict = Depends(get_current_user),
-    session: Session = Depends(get_db),
+    session: AsyncSession = Depends(get_async_session),
 ):
     """Cập nhật profile của người dùng hiện tại."""
-    profile = get_profile_by_id(session, current_user["id"])
+    profile = await get_profile_by_id(session, current_user["id"])
     if not profile:
         raise HTTPException(status_code=404, detail="Profile không tìm thấy")
-    return update_profile(session, profile, update_data.dict(exclude_unset=True))
+    return await update_profile(session, profile, update_data.dict(exclude_unset=True))
 
 
 # Admin endpoints (role & staff management)
@@ -78,16 +79,17 @@ async def update_user_role(
     user_id: str,
     request: UpdateRoleRequest,
     current_user: dict = Depends(get_current_user),
-    session: Session = Depends(get_db),
+    session: AsyncSession = Depends(get_async_session),
 ):
     """Update role cho user (chỉ admin)."""
     # Check if current user is admin
-    admin_link = session.exec(
+    result = await session.exec(
         select(UserRoleLink).where(
             UserRoleLink.user_id == current_user["id"],
             UserRoleLink.role_name == "admin",
         )
-    ).first()
+    )
+    admin_link = result.first()
     if not admin_link:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -102,7 +104,7 @@ async def update_user_role(
             detail=f"Role không hợp lệ. Các role hợp lệ: {', '.join(valid_roles)}",
         )
 
-    message = update_user_role_service(user_id, request.role, session)
+    message = await update_user_role_service(user_id, request.role, session)
     return {"message": message}
 
 
@@ -110,16 +112,17 @@ async def update_user_role(
 async def invite_staff(
     request: InviteStaffRequest,
     current_user: dict = Depends(get_current_user),
-    session: Session = Depends(get_db),
+    session: AsyncSession = Depends(get_async_session),
 ):
     """Mời staff qua email (chỉ admin)."""
     # Check if current user is admin
-    admin_link = session.exec(
+    result = await session.exec(
         select(UserRoleLink).where(
             UserRoleLink.user_id == current_user["id"],
             UserRoleLink.role_name == "admin",
         )
-    ).first()
+    )
+    admin_link = result.first()
     if not admin_link:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -134,5 +137,5 @@ async def invite_staff(
             detail=f"Role không hợp lệ. Các role hợp lệ: {', '.join(valid_roles)}",
         )
 
-    message = invite_staff_service(request.email, request.role, session)
+    message = await invite_staff_service(request.email, request.role, session)
     return {"message": message}

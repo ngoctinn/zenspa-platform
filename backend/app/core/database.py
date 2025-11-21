@@ -1,11 +1,12 @@
-"""Kết nối database và quản lý session."""
+"""Kết nối database và quản lý session (Async)."""
 
 import time
-from contextlib import contextmanager
-from typing import Generator
-from sqlmodel import create_engine, Session, text
+from typing import AsyncGenerator
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
+from sqlmodel import text
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -18,11 +19,14 @@ from app.core.config import settings
 from app.core.exceptions import DatabaseException
 from app.core.logging import logger
 
+# Chuyển đổi URL sang asyncpg
+DATABASE_URL = settings.database_url
+if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-# Tạo engine sync
-engine = create_engine(
-    settings.database_url,
-    poolclass=QueuePool,
+# Tạo engine async
+engine = create_async_engine(
+    DATABASE_URL,
     pool_size=settings.db_pool_size if hasattr(settings, "db_pool_size") else 10,
     max_overflow=(
         settings.db_max_overflow if hasattr(settings, "db_max_overflow") else 10
@@ -31,11 +35,12 @@ engine = create_engine(
         settings.db_pool_timeout if hasattr(settings, "db_pool_timeout") else 30
     ),
     echo=settings.db_echo if hasattr(settings, "db_echo") else False,
+    future=True,
 )
 
-# Tạo session factory với SQLModel Session
-SessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine, class_=Session
+# Tạo session factory với AsyncSession
+AsyncSessionLocal = sessionmaker(
+    bind=engine, class_=AsyncSession, expire_on_commit=False
 )
 
 
@@ -45,51 +50,49 @@ SessionLocal = sessionmaker(
     retry=retry_if_exception_type((OperationalError, DBAPIError)),
     reraise=True,
 )
-def init_db() -> None:
+async def init_db() -> None:
     """
-    Khởi tạo database với cơ chế retry.
+    Khởi tạo database với cơ chế retry (Async).
     Retry 3 lần với exponential backoff (2s, 4s, 8s).
     """
     try:
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-            conn.commit()
+        async with engine.begin() as conn:
+            await conn.execute(text("SELECT 1"))
         logger.info("✅ Kết nối database thành công")
     except Exception as e:
         logger.error(f"❌ Kết nối database thất bại: {e}")
         raise DatabaseException(f"Không thể khởi tạo database: {e}")
 
 
-def close_db() -> None:
+async def close_db() -> None:
     """Đóng kết nối database."""
-    engine.dispose()
+    await engine.dispose()
     logger.info("Kết nối database đã đóng")
 
 
-def get_db() -> Generator[Session, None, None]:
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency cho FastAPI.
-    Cung cấp database session, tự động close sau request.
+    Cung cấp async database session, tự động close sau request.
     """
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
-def check_database_health() -> tuple[bool, float]:
+async def check_database_health() -> tuple[bool, float]:
     """
-    Kiểm tra sức khỏe database bằng cách thực hiện query đơn giản.
+    Kiểm tra sức khỏe database bằng cách thực hiện query đơn giản (Async).
 
     Trả về:
         tuple: (is_healthy: bool, response_time: float tính bằng giây)
     """
     start_time = time.time()
     try:
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-            conn.commit()
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
         response_time = time.time() - start_time
         logger.debug(f"Health check database thành công trong {response_time:.3f}s")
         return True, response_time

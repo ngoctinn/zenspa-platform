@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
         setup_logging()
 
         # Khởi tạo database
-        init_db()
+        await init_db()
 
         logger.info("✅ Ứng dụng khởi động thành công")
     except Exception as e:
@@ -42,7 +42,7 @@ async def lifespan(app: FastAPI):
     # Tắt máy
     try:
         # Đóng kết nối database
-        close_db()
+        await close_db()
 
         # Đóng kết nối Redis
         close_redis()
