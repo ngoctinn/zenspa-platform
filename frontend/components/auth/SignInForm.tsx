@@ -56,6 +56,18 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
         return;
       }
 
+      // Call API to set httpOnly cookie
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData.session?.access_token) {
+        await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ access_token: sessionData.session.access_token }),
+        });
+      }
+
       showToast({
         message: authMessages.success.signInSuccess,
         variant: "success",

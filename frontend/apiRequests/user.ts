@@ -20,15 +20,8 @@ export interface UpdateUserProfileData {
 }
 
 export const getUserProfile = async (): Promise<UserProfile> => {
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session?.access_token) {
-    throw new Error("No access token");
-  }
-
   const response = await fetch("http://localhost:8000/api/v1/users/me", {
-    headers: {
-      Authorization: `Bearer ${sessionData.session.access_token}`,
-    },
+    credentials: "include", // Send cookies with request
   });
 
   if (!response.ok) {
@@ -41,17 +34,12 @@ export const getUserProfile = async (): Promise<UserProfile> => {
 export const updateUserProfile = async (
   data: UpdateUserProfileData
 ): Promise<UserProfile> => {
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session?.access_token) {
-    throw new Error("No access token");
-  }
-
   const response = await fetch("http://localhost:8000/api/v1/users/me", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${sessionData.session.access_token}`,
     },
+    credentials: "include", // Send cookies with request
     body: JSON.stringify(data),
   });
 
