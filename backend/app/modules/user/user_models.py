@@ -1,6 +1,6 @@
 """Mô hình user sử dụng SQLModel."""
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from enum import Enum
 from sqlmodel import Field, SQLModel
 from uuid import UUID
@@ -29,14 +29,11 @@ class Profile(SQLModel, table=True):
     birth_date: date | None = Field(default=None, description="Ngày sinh")
     avatar_url: str | None = Field(default=None, description="URL ảnh đại diện")
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Thời gian tạo"
+        default_factory=lambda: datetime.now(timezone.utc), description="Thời gian tạo"
     )
     updated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Thời gian cập nhật"
-    )
-    role: str = Field(
-        default="customer",
-        description="Vai trò người dùng (for Supabase compatibility)",
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="Thời gian cập nhật",
     )
 
 
@@ -50,8 +47,9 @@ class UserRoleLink(SQLModel, table=True):
     )
     role_name: Role = Field(primary_key=True, description="Tên vai trò")
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Thời gian tạo"
+        default_factory=lambda: datetime.now(timezone.utc), description="Thời gian tạo"
     )
     updated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Thời gian cập nhật"
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="Thời gian cập nhật",
     )

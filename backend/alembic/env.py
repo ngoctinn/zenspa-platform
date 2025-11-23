@@ -67,10 +67,13 @@ def run_migrations_online() -> None:
     # Import here to avoid circular imports
     from app.core.config import settings
 
-    # Use sync engine for SQLModel
+    # Use sync engine for SQLModel - convert async URL to sync URL for alembic
     from sqlalchemy import create_engine
 
-    connectable = create_engine(settings.database_url, echo=False)
+    # Convert async URL to sync URL for alembic
+    sync_url = settings.database_url.replace("postgresql+asyncpg://", "postgresql://")
+
+    connectable = create_engine(sync_url, echo=False)
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

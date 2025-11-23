@@ -40,7 +40,7 @@ class DatabaseException(ZenSpaException):
             message=message,
             code=ErrorCode.DATABASE_ERROR,
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            details=details
+            details=details,
         )
 
 
@@ -52,7 +52,7 @@ class CacheException(ZenSpaException):
             message=message,
             code=ErrorCode.CACHE_ERROR,
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            details=details
+            details=details,
         )
 
 
@@ -64,7 +64,7 @@ class ValidationException(ZenSpaException):
             message=message,
             code=ErrorCode.VALIDATION_ERROR,
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            details=details
+            details=details,
         )
 
 
@@ -76,26 +76,31 @@ class NotFoundException(ZenSpaException):
             message=message,
             code=ErrorCode.NOT_FOUND,
             status_code=status.HTTP_404_NOT_FOUND,
-            details=details
+            details=details,
         )
 
 
 # Exception handlers cho FastAPI
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from app.core.logging import logger
 
 
-async def zenspa_exception_handler(request: Request, exc: ZenSpaException) -> JSONResponse:
+async def zenspa_exception_handler(
+    request: Request, exc: ZenSpaException
+) -> JSONResponse:
     """Xử lý custom ZenSpa exceptions."""
     # Ghi log lỗi
-    logger.error(f"ZenSpaException: {exc.message}", extra={
-        'request_id': getattr(request.state, 'request_id', None),
-        'error_code': exc.code,
-        'status_code': exc.status_code
-    })
+    logger.error(
+        f"ZenSpaException: {exc.message}",
+        extra={
+            "request_id": getattr(request.state, "request_id", None),
+            "error_code": exc.code,
+            "status_code": exc.status_code,
+        },
+    )
 
     return JSONResponse(
         status_code=exc.status_code,
@@ -106,18 +111,21 @@ async def zenspa_exception_handler(request: Request, exc: ZenSpaException) -> JS
                 "message": exc.message,
                 "details": exc.details,
             },
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "request_id": getattr(request.state, "request_id", None),
         },
     )
 
 
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     """Xử lý lỗi validation Pydantic."""
     # Ghi log lỗi
-    logger.error(f"ValidationError: {exc.errors()}", extra={
-        'request_id': getattr(request.state, 'request_id', None)
-    })
+    logger.error(
+        f"ValidationError: {exc.errors()}",
+        extra={"request_id": getattr(request.state, "request_id", None)},
+    )
 
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -128,7 +136,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
                 "message": "Dữ liệu đầu vào không hợp lệ",
                 "details": exc.errors(),
             },
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "request_id": getattr(request.state, "request_id", None),
         },
     )
@@ -137,9 +145,10 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Xử lý catch-all cho unexpected exceptions."""
     # Ghi log full exception để debug
-    logger.exception(f"Unhandled exception: {exc}", extra={
-        'request_id': getattr(request.state, 'request_id', None)
-    })
+    logger.exception(
+        f"Unhandled exception: {exc}",
+        extra={"request_id": getattr(request.state, "request_id", None)},
+    )
 
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -150,7 +159,7 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
                 "message": "Đã xảy ra lỗi không mong muốn",
                 # Không expose chi tiết exception trong production
             },
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "request_id": getattr(request.state, "request_id", None),
         },
     )

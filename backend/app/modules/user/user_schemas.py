@@ -3,6 +3,7 @@
 from datetime import date, datetime
 from pydantic import BaseModel, EmailStr, Field
 from uuid import UUID
+from .user_models import Role
 
 
 class ProfileBase(BaseModel):
@@ -36,11 +37,11 @@ class ProfileUpdate(BaseModel):
 class UpdateRoleRequest(BaseModel):
     """Request để update role."""
 
-    role: str  # customer, receptionist, technician, admin
+    role: Role  # customer, receptionist, technician, admin
 
 
 class InviteStaffRequest(BaseModel):
     """Request để mời staff."""
 
     email: EmailStr
-    role: str  # customer, receptionist, technician, admin
+    role: Role  # customer, receptionist, technician, admin

@@ -1,6 +1,6 @@
 """Health check endpoints."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, status
 from app.common.schemas import (
     HealthCheckResponse,
@@ -26,7 +26,7 @@ async def health_check() -> HealthCheckResponse:
     logger.info("Health check endpoint được gọi")
     return HealthCheckResponse(
         status="healthy",
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         service=settings.app_name,
         version=settings.app_version,
     )
@@ -44,7 +44,7 @@ async def database_health_check() -> DatabaseHealthResponse:
 
     return DatabaseHealthResponse(
         status="healthy" if is_healthy else "unhealthy",
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         service=settings.app_name,
         version=settings.app_version,
         database="postgresql",
@@ -67,7 +67,7 @@ async def redis_health_check() -> RedisHealthResponse:
 
     return RedisHealthResponse(
         status="healthy" if is_healthy else "unhealthy",
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         service=settings.app_name,
         version=settings.app_version,
         redis=redis_url,
@@ -94,7 +94,7 @@ async def comprehensive_health_check():
 
     return {
         "status": "healthy" if overall_healthy else "unhealthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "service": settings.app_name,
         "version": settings.app_version,
         "checks": {
