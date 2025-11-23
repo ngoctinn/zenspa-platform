@@ -1,5 +1,6 @@
 "use client";
 
+import { getCurrentUser, signOutUser } from "@/apiRequests/auth";
 import AuthActions from "@/components/auth/AuthActions";
 import NotificationIcon from "@/components/auth/NotificationIcon";
 import { UserProfileMenu } from "@/components/auth/UserProfileMenu";
@@ -12,7 +13,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { supabase } from "@/utils/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { Menu } from "lucide-react";
 import Link from "next/link";
@@ -32,9 +32,15 @@ const Navbar = () => {
   useEffect(() => {
     const getUser = async () => {
       setLoading(true);
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
-      setLoading(false);
+      try {
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Failed to get user:", error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
     getUser();
   }, []);
@@ -58,10 +64,13 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    await fetch("/api/auth/logout", { method: "POST" });
-    setUser(null);
-    router.push("/signin");
+    try {
+      await signOutUser();
+      setUser(null);
+      router.push("/signin");
+    } catch (error) {
+      console.error("Failed to logout:", error);
+    }
   };
 
   // Xác định className cho header dựa trên trạng thái cuộn

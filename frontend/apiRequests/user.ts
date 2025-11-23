@@ -5,7 +5,7 @@ export interface UserProfile {
   phone: string | null;
   birth_date: string | null; // ISO date string
   avatar_url: string | null;
-  role: string;
+  roles: string[];
   created_at: string;
   updated_at: string;
 }
