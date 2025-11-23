@@ -64,7 +64,9 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ access_token: sessionData.session.access_token }),
+          body: JSON.stringify({
+            access_token: sessionData.session.access_token,
+          }),
         });
       }
 

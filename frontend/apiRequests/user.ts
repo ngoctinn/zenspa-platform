@@ -1,5 +1,3 @@
-import { supabase } from "@/utils/supabaseClient";
-
 export interface UserProfile {
   id: string;
   email: string;

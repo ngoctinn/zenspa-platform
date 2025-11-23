@@ -37,15 +37,15 @@ def get_current_user(
 ) -> dict:
     """Dependency để lấy thông tin cơ bản của user hiện tại từ JWT (Header hoặc Cookie)."""
     token = None
-    
+
     # 1. Ưu tiên lấy từ Header Authorization
     if credentials:
         token = credentials.credentials
-    
+
     # 2. Nếu không có header, lấy từ Cookie
     if not token:
         token = request.cookies.get("access_token")
-        
+
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
