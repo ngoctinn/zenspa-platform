@@ -31,7 +31,8 @@ const SidebarMenu = () => {
             variant="ghost"
             className={cn(
               "w-full justify-start gap-2",
-              isActive && "text-primary border border-primary/20 bg-primary/5"
+              isActive &&
+                "bg-primary/10 text-primary border-l-4 border-primary rounded-none rounded-r-md"
             )}
             asChild
           >

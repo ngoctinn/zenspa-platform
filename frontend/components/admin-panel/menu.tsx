@@ -1,20 +1,20 @@
 "use client";
 
-import Link from "next/link";
 import { Ellipsis, LogOut } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { cn } from "@/lib/utils";
-import { getMenuList } from "@/lib/menu-list";
+import { CollapseMenuButton } from "@/components/admin-panel/collapse-menu-button";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CollapseMenuButton } from "@/components/admin-panel/collapse-menu-button";
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
-  TooltipProvider
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getMenuList } from "@/lib/menu-list";
+import { cn } from "@/lib/utils";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -58,14 +58,15 @@ export function Menu({ isOpen }: MenuProps) {
                         <Tooltip delayDuration={100}>
                           <TooltipTrigger asChild>
                             <Button
-                              variant={
+                              variant="ghost"
+                              className={cn(
+                                "w-full justify-start h-10 mb-1",
                                 (active === undefined &&
                                   pathname.startsWith(href)) ||
-                                active
-                                  ? "secondary"
-                                  : "ghost"
-                              }
-                              className="w-full justify-start h-10 mb-1"
+                                  active
+                                  ? "bg-primary/10 text-primary border-l-4 border-primary hover:bg-primary/20 rounded-none rounded-r-md"
+                                  : ""
+                              )}
                               asChild
                             >
                               <Link href={href}>

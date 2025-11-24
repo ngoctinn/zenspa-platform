@@ -90,14 +90,14 @@ export function getMenuList(pathname: string): Group[] {
       menus: [
         {
           href: "/admin/users",
-          label: "Người dùng hệ thống",
+          label: "Người dùng",
           active: pathname.includes("/admin/users"),
           icon: Users,
           roles: ["admin"],
         },
         {
           href: "/admin/settings",
-          label: "Cấu hình hệ thống",
+          label: "Cấu hình",
           active: pathname.includes("/admin/settings"),
           icon: Settings,
           roles: ["admin"],

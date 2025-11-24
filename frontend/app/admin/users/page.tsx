@@ -1,4 +1,5 @@
 import { ContentLayout } from "@/components/admin/content-layout";
+import { AdminUserManagementPage } from "@/components/admin/user-management-page";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,11 +8,17 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Metadata } from "next";
 import Link from "next/link";
 
-export default function UsersPage() {
+export const metadata: Metadata = {
+  title: "Quản Lý Tài Khoản | ZenSpa Admin",
+  description: "Quản lý tài khoản người dùng hệ thống",
+};
+
+export default function AdminUsersPage() {
   return (
-    <ContentLayout title="Người dùng hệ thống">
+    <ContentLayout title="Quản Lý Tài Khoản">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -21,14 +28,12 @@ export default function UsersPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Người dùng hệ thống</BreadcrumbPage>
+            <BreadcrumbPage>Quản Lý Tài Khoản</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="mt-6 p-4 border rounded-lg border-dashed min-h-[400px] flex items-center justify-center bg-violet-50 dark:bg-violet-900/20">
-        <h2 className="text-2xl font-bold">
-          Nội dung trang Người dùng hệ thống
-        </h2>
+      <div className="mt-6">
+        <AdminUserManagementPage />
       </div>
     </ContentLayout>
   );

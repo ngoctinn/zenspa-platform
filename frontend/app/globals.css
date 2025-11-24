@@ -19,7 +19,7 @@
 
 :root {
   /* Nền: Màu kem trắng ấm (thay vì trắng tinh lạnh lẽo) */
-  --background: oklch(0.985 0.005 100);
+  --background: oklch(0.99 0.003 100);
   /* Chữ: Màu xám xanh đậm (thay vì đen tuyền) -> Dịu mắt hơn */
   --foreground: oklch(0.25 0.02 135);
 
