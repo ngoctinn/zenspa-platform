@@ -1,4 +1,4 @@
-import { supabase } from "@/utils/supabaseClient";
+import { createSupabaseBrowserClient } from "@/utils/supabaseClient";
 import { User } from "@supabase/supabase-js";
 
 /**
@@ -6,6 +6,7 @@ import { User } from "@supabase/supabase-js";
  * @returns Promise<User | null>
  */
 export const getCurrentUser = async (): Promise<User | null> => {
+  const supabase = createSupabaseBrowserClient();
   const { data, error } = await supabase.auth.getUser();
   if (error) {
     throw new Error(`Failed to get current user: ${error.message}`);
@@ -18,6 +19,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
  * @returns Promise<void>
  */
 export const signOutUser = async (): Promise<void> => {
+  const supabase = createSupabaseBrowserClient();
   const { error } = await supabase.auth.signOut();
   if (error) {
     throw new Error(`Failed to sign out: ${error.message}`);

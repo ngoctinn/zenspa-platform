@@ -1,6 +1,5 @@
 "use client";
 
-import { PanelsTopLeft } from "lucide-react";
 import Link from "next/link";
 
 import { Menu } from "@/components/admin/menu";
@@ -26,23 +25,22 @@ export function Sidebar({ isOpen, setIsOpen, userRoles }: SidebarProps) {
       <div className="relative h-full flex flex-col px-3 py-4 overflow-y-auto shadow-md dark:shadow-zinc-800">
         <Button
           className={cn(
-            "transition-transform ease-in-out duration-300 mb-1",
+            "transition-all ease-in-out duration-300 mb-1",
             !isOpen ? "translate-x-1" : "translate-x-0"
           )}
           variant="link"
           asChild
         >
           <Link href="/admin/dashboard" className="flex items-center gap-2">
-            <PanelsTopLeft className="w-6 h-6 mr-1" />
             <h1
               className={cn(
-                "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
+                "font-bold text-lg whitespace-nowrap transition-all ease-in-out duration-300",
                 !isOpen
-                  ? "-translate-x-96 opacity-0 hidden"
-                  : "translate-x-0 opacity-100"
+                  ? "-translate-x-8 opacity-0 scale-75"
+                  : "translate-x-0 opacity-100 scale-100"
               )}
             >
-              ZenSpa Admin
+              ZENSPA
             </h1>
           </Link>
         </Button>

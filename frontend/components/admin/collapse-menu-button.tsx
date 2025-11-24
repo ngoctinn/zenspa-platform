@@ -173,10 +173,11 @@ export function CollapseMenuButton({
         {submenus.map(({ href, label, active }, index) => (
           <DropdownMenuItem key={index} asChild>
             <Link
-              className={`cursor-pointer ${
+              className={cn(
+                "cursor-pointer",
                 ((active === undefined && pathname === href) || active) &&
-                "bg-secondary"
-              }`}
+                  "bg-secondary"
+              )}
               href={href}
             >
               <p className="max-w-[180px] truncate">{label}</p>

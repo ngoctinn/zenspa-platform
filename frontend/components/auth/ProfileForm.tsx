@@ -25,13 +25,13 @@ import {
   profileSchema,
   type ProfileFormData,
 } from "@/schemaValidations/profileSchema";
-import { supabase } from "@/utils/supabaseClient";
+import { createSupabaseBrowserClient } from "@/utils/supabaseClient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@supabase/supabase-js";
 import {
+  BadgeCheck,
   CalendarIcon,
   CameraIcon,
-  CheckIcon,
   MailIcon,
   PhoneIcon,
   UserIcon,
@@ -58,6 +58,7 @@ export default function ProfileForm() {
   useEffect(() => {
     const getUser = async () => {
       try {
+        const supabase = createSupabaseBrowserClient();
         const { data } = await supabase.auth.getUser();
         if (data.user) {
           setUser(data.user);
@@ -117,6 +118,7 @@ export default function ProfileForm() {
       const file = event.target.files?.[0];
       if (!file || !user) return;
 
+      const supabase = createSupabaseBrowserClient();
       const fileExt = file.name.split(".").pop();
       const fileName = `${user.id}.${fileExt}`;
       const { data, error } = await supabase.storage
@@ -222,7 +224,7 @@ export default function ProfileForm() {
                             {...field}
                           />
                           {user?.email_confirmed_at && (
-                            <CheckIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 size-4" />
+                            <BadgeCheck className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 size-4" />
                           )}
                         </div>
                       </FormControl>

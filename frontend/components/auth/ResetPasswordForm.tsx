@@ -23,7 +23,7 @@ import {
   resetPasswordSchema,
   type ResetPasswordFormData,
 } from "@/schemaValidations/resetPasswordSchema";
-import { supabase } from "@/utils/supabaseClient";
+import { createSupabaseBrowserClient } from "@/utils/supabaseClient";
 
 interface ResetPasswordFormProps {
   onSendResetSuccess?: () => void;
@@ -46,6 +46,7 @@ const ResetPasswordForm = ({
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     try {
+      const supabase = createSupabaseBrowserClient();
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
         redirectTo: `http://localhost:3000/reset-password`,
       });

@@ -7,12 +7,22 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from supabase.client import Client, create_client
 
 from app.core.config import settings
+from app.core.logging import logger
+from app.redis.helpers import cache_delete, cache_get, cache_set
 from .user_models import Profile, Role, UserRoleLink
+
+# Thời gian sống cho cache hồ sơ người dùng (1 giờ)
+USER_CACHE_TTL = 3600
 
 # Supabase admin client
 supabase_admin: Client = create_client(
     settings.supabase_url, settings.supabase_service_role_key
 )
+
+
+def _generate_user_cache_key(user_id: UUID) -> str:
+    """Tạo khóa cache chuẩn cho hồ sơ người dùng."""
+    return f"user_profile:{user_id}"
 
 
 async def get_profile_by_id(session: AsyncSession, user_id: UUID) -> Profile | None:
@@ -22,30 +32,48 @@ async def get_profile_by_id(session: AsyncSession, user_id: UUID) -> Profile | N
 
 
 async def get_profile_with_roles(session: AsyncSession, user_id: UUID) -> dict | None:
-    """Lấy profile với list roles từ UserRoleLink."""
+    """
+    Lấy profile với list roles, ưu tiên từ cache.
+    Áp dụng Cache-Aside Pattern.
+    """
+    cache_key = _generate_user_cache_key(user_id)
+
+    # 1. Thử đọc từ cache
+    cached_profile = cache_get(cache_key)
+    if cached_profile:
+        logger.debug(f"Cache hit cho hồ sơ người dùng: {cache_key}")
+        return cached_profile
+
+    logger.debug(f"Cache miss: {cache_key}. Truy vấn database...")
+
+    # 2. Không có trong cache, truy vấn database
     profile = await get_profile_by_id(session, user_id)
     if not profile:
         return None
 
-    # Get roles
+    # Lấy roles
     roles_result = await session.exec(
         select(UserRoleLink.role_name).where(UserRoleLink.user_id == user_id)
     )
-    roles = roles_result.all()
-    if not roles:
-        roles.append(Role.CUSTOMER)  # Default
+    roles = roles_result.all() or [Role.CUSTOMER]  # Mặc định là customer
 
-    return {
+    profile_data = {
         "id": profile.id,
         "email": profile.email,
         "full_name": profile.full_name,
         "phone": profile.phone,
-        "birth_date": profile.birth_date,
+        "birth_date": profile.birth_date.isoformat() if profile.birth_date else None,
         "avatar_url": profile.avatar_url,
         "roles": roles,
-        "created_at": profile.created_at,
-        "updated_at": profile.updated_at,
+        "created_at": profile.created_at.isoformat(),
+        "updated_at": profile.updated_at.isoformat(),
     }
+
+    # 3. Lưu vào cache trước khi trả về
+    cache_set(cache_key, profile_data, ttl=USER_CACHE_TTL)
+    logger.info(f"Đã lưu hồ sơ người dùng {user_id} vào cache.")
+
+    return profile_data
 
 
 async def create_profile(session: AsyncSession, profile_data: dict) -> Profile:
@@ -66,19 +94,25 @@ async def create_profile(session: AsyncSession, profile_data: dict) -> Profile:
 async def update_profile(
     session: AsyncSession, profile: Profile, update_data: dict
 ) -> Profile:
-    """Cập nhật profile với dữ liệu mới."""
+    """Cập nhật profile và vô hiệu hóa cache."""
     for key, value in update_data.items():
         setattr(profile, key, value)
     session.add(profile)
     await session.commit()
     await session.refresh(profile)
+
+    # Vô hiệu hóa cache sau khi cập nhật DB
+    cache_key = _generate_user_cache_key(profile.id)
+    if cache_delete(cache_key):
+        logger.info(f"Đã vô hiệu hóa cache cho hồ sơ: {cache_key}")
+
     return profile
 
 
 async def update_user_role_service(
     user_id: UUID, new_role: Role, session: AsyncSession
 ) -> str:
-    """Cập nhật role cho user (thêm vào UserRoleLink)."""
+    """Cập nhật role cho user và vô hiệu hóa cache."""
     # Lấy thông tin user từ DB hoặc Supabase
     target_profile = await get_profile_by_id(session, user_id)
     if not target_profile:
@@ -114,6 +148,11 @@ async def update_user_role_service(
     new_link = UserRoleLink(user_id=user_id, role_name=new_role)
     session.add(new_link)
     await session.commit()
+
+    # Vô hiệu hóa cache sau khi cập nhật role
+    cache_key = _generate_user_cache_key(user_id)
+    if cache_delete(cache_key):
+        logger.info(f"Đã vô hiệu hóa cache cho hồ sơ do thay đổi role: {cache_key}")
 
     return f"Đã gán role '{new_role.value}' cho user {user_id}"
 

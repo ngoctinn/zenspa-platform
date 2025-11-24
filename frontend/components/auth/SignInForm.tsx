@@ -23,7 +23,7 @@ import {
   signInSchema,
   type SignInFormData,
 } from "@/schemaValidations/signInSchema";
-import { supabase } from "@/utils/supabaseClient";
+import { createSupabaseBrowserClient } from "@/utils/supabaseClient";
 
 interface SignInFormProps {
   onSignInSuccess?: () => void;
@@ -43,6 +43,7 @@ const SignInForm = ({ onSignInSuccess, onForgotPassword }: SignInFormProps) => {
 
   const onSubmit = async (data: SignInFormData) => {
     try {
+      const supabase = createSupabaseBrowserClient();
       const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,

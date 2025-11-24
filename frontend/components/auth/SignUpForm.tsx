@@ -24,7 +24,7 @@ import {
   signUpSchema,
   type SignUpFormData,
 } from "@/schemaValidations/signUpSchema";
-import { supabase } from "@/utils/supabaseClient";
+import { createSupabaseBrowserClient } from "@/utils/supabaseClient";
 
 interface SignUpFormProps {
   onSignUpSuccess?: () => void;
@@ -46,6 +46,7 @@ const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
 
   const onSubmit = async (data: SignUpFormData) => {
     try {
+      const supabase = createSupabaseBrowserClient();
       const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,

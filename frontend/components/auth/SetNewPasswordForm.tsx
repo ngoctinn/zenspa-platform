@@ -23,7 +23,7 @@ import {
   setNewPasswordSchema,
   type SetNewPasswordFormData,
 } from "@/schemaValidations/setNewPasswordSchema";
-import { supabase } from "@/utils/supabaseClient";
+import { createSupabaseBrowserClient } from "@/utils/supabaseClient";
 
 const SetNewPasswordForm = () => {
   const router = useRouter();
@@ -41,6 +41,7 @@ const SetNewPasswordForm = () => {
 
   useEffect(() => {
     const checkSession = async () => {
+      const supabase = createSupabaseBrowserClient();
       // Listen for auth state changes
       const {
         data: { subscription },
@@ -70,6 +71,7 @@ const SetNewPasswordForm = () => {
 
   const onSubmit = async (data: SetNewPasswordFormData) => {
     try {
+      const supabase = createSupabaseBrowserClient();
       const { error } = await supabase.auth.updateUser({
         password: data.password,
       });
