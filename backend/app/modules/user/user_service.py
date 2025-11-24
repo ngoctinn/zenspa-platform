@@ -215,15 +215,7 @@ async def invite_staff_service(
 
         if user:
             user_id = UUID(user.id)
-            # Pre-create profile và role
-            # Kiểm tra xem profile đã tồn tại chưa
-            profile = await get_profile_by_id(session, user_id)
-            if not profile:
-                profile = Profile(
-                    id=user_id, full_name=email.split("@")[0]
-                )  # Tạm lấy tên từ email
-                session.add(profile)
-                await session.commit()
+            # Không tạo Profile giả ở đây nữa (để Trigger xử lý hoặc Lazy Creation)
 
             # Gán role
             role_obj = await get_role_by_name(session, role.value)

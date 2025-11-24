@@ -2,7 +2,7 @@
 
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jwt import PyJWKClient, decode
+from jwt import decode
 
 from app.core.config import settings
 
@@ -13,17 +13,15 @@ oauth2_scheme = HTTPBearer(auto_error=False)
 def verify_jwt(token: str) -> dict:
     """Verify JWT từ Supabase và trả về payload."""
     try:
-        if settings.debug:
-            # Skip verify in dev mode
-            payload = decode(token, options={"verify_signature": False})
-        else:
-            jwks_url = f"{settings.supabase_url}/auth/v1/.well-known/jwks.json"
-            jwks_client = PyJWKClient(jwks_url)
-            signing_key = jwks_client.get_signing_key_from_jwt(token)
-            payload = decode(
-                token, signing_key.key, algorithms=["RS256"], audience="authenticated"
-            )
-        return payload
+        if not settings.supabase_jwt_secret:
+            raise Exception("Chưa cấu hình SUPABASE_JWT_SECRET")
+
+        return decode(
+            token,
+            settings.supabase_jwt_secret,
+            algorithms=["HS256"],
+            audience="authenticated",
+        )
     except Exception as e:
         print(f"JWT verify error: {e}")  # Debug log
         raise HTTPException(
@@ -53,9 +51,15 @@ def get_current_user(
         )
 
     payload = verify_jwt(token)
+
+    # Lấy roles từ app_metadata (được inject bởi Supabase Auth Hook)
+    app_metadata = payload.get("app_metadata", {})
+    roles = app_metadata.get("roles", [])
+
     user = {
         "id": payload["sub"],
         "email": payload.get("email"),
         "full_name": payload.get("user_metadata", {}).get("full_name"),
+        "roles": roles,
     }
     return user

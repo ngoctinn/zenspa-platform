@@ -30,20 +30,12 @@ admin_router = APIRouter()
 # Dependency để check quyền admin
 async def require_admin(
     current_user: dict = Depends(get_current_user),
-    session: AsyncSession = Depends(get_async_session),
 ):
     """Dependency yêu cầu user phải có role admin."""
-    user_id = current_user["id"]
+    # Check role từ JWT claims (đã được inject vào current_user)
+    roles = current_user.get("roles", [])
 
-    # Join với bảng Role để check tên role
-    statement = (
-        select(UserRoleLink)
-        .join(Role)
-        .where(UserRoleLink.user_id == user_id, Role.name == RoleEnum.ADMIN.value)
-    )
-    result = await session.exec(statement)
-
-    if not result.first():
+    if RoleEnum.ADMIN.value not in roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Yêu cầu quyền admin",

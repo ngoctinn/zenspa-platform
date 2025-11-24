@@ -35,27 +35,27 @@ class Settings(BaseSettings):
     supabase_url: str | None = None
     supabase_anon_key: str | None = None
     supabase_service_role_key: str | None = None
+    supabase_jwt_secret: str | None = None
 
     class Config:
         env_file = ".env"
         case_sensitive = False
         extra = "ignore"
 
-
     @property
     def cors_origins_list(self) -> List[str]:
         """Trả về origins CORS dưới dạng danh sách."""
         return self.cors_origins
 
-    @field_validator('database_url')
+    @field_validator("database_url")
     @classmethod
     def validate_database_url(cls, v: str) -> str:
         """Xác thực định dạng database URL."""
-        if not v.startswith('postgresql'):
-            raise ValueError('DATABASE_URL phải bắt đầu bằng postgresql')
+        if not v.startswith("postgresql"):
+            raise ValueError("DATABASE_URL phải bắt đầu bằng postgresql")
         return v
 
-    @field_validator('cors_origins', mode='before')
+    @field_validator("cors_origins", mode="before")
     @classmethod
     def validate_cors_origins(cls, v):
         """Xác thực và parse CORS origins từ env var."""
@@ -65,7 +65,7 @@ class Settings(BaseSettings):
             if not v.strip():
                 return ["http://localhost:3000"]  # default
             # Handle comma-separated or single URL
-            origins = [origin.strip() for origin in v.split(',') if origin.strip()]
+            origins = [origin.strip() for origin in v.split(",") if origin.strip()]
             return origins
         return ["http://localhost:3000"]  # fallback
 
