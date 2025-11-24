@@ -4,9 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { InputPassword } from "@/components/common/InputPassword";
-import { InputWithIcon } from "@/components/common/InputWithIcon";
-import { showToast } from "@/components/common/Toast";
+import { InputPassword } from "@/components/common/input-password";
+import { InputWithIcon } from "@/components/common/input-with-icon";
+import { showToast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";

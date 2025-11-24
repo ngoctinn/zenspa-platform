@@ -1,6 +1,6 @@
 "use client";
 
-import { SetNewPasswordForm } from "@/components/auth/SetNewPasswordForm";
+import { SetNewPasswordForm } from "@/components/auth/set-new-password-form";
 
 const ResetPasswordPage = () => {
   return (

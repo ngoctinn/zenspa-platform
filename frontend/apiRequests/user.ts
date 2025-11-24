@@ -1,21 +1,4 @@
-export interface UserProfile {
-  id: string;
-  email: string;
-  full_name: string | null;
-  phone: string | null;
-  birth_date: string | null; // ISO date string
-  avatar_url: string | null;
-  roles: string[];
-  created_at: string;
-  updated_at: string;
-}
-
-export interface UpdateUserProfileData {
-  full_name?: string | null;
-  phone?: string | null;
-  birth_date?: string | null;
-  avatar_url?: string | null;
-}
+import { UpdateUserProfileData, UserProfile } from "@/lib/types";
 
 export const getUserProfile = async (): Promise<UserProfile> => {
   const response = await fetch("http://localhost:8000/api/v1/users/me", {

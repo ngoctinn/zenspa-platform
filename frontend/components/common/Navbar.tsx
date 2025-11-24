@@ -1,9 +1,9 @@
 "use client";
 
 import { getCurrentUser, signOutUser } from "@/apiRequests/auth";
-import AuthActions from "@/components/auth/AuthActions";
-import NotificationIcon from "@/components/auth/NotificationIcon";
-import { UserProfileMenu } from "@/components/auth/UserProfileMenu";
+import AuthActions from "@/components/auth/auth-actions";
+import NotificationIcon from "@/components/auth/notification-icon";
+import { UserProfileMenu } from "@/components/auth/user-profile-menu";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {

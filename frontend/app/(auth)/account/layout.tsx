@@ -1,6 +1,6 @@
 "use client";
 
-import SidebarMenu from "@/components/auth/SidebarMenu";
+import SidebarMenu from "@/components/auth/sidebar-menu";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Menu, X } from "lucide-react";

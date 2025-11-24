@@ -1,6 +1,6 @@
-import HeroSection from "@/components/common/HeroSection";
-import ServicesBlock from "@/components/common/ServicesBlock";
-import Testimonials from "@/components/common/Testimonials";
+import HeroSection from "@/components/common/hero-section";
+import ServicesBlock from "@/components/common/services-block";
+import Testimonials from "@/components/common/testimonials";
 
 export default function Home() {
   return (

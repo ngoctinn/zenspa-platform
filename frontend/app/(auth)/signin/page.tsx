@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { SignInForm } from "@/components/auth/SignInForm";
+import { SignInForm } from "@/components/auth/sign-in-form";
 
 const SignInPage = () => {
   const router = useRouter();

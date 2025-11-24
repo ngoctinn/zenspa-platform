@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { InputPassword } from "@/components/common/InputPassword";
-import { showToast } from "@/components/common/Toast";
+import { InputPassword } from "@/components/common/input-password";
+import { showToast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {

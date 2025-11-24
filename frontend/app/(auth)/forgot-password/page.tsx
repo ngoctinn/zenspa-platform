@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
+import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 const ForgotPasswordPage = () => {
   const router = useRouter();

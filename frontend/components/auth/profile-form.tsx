@@ -1,8 +1,8 @@
 "use client";
 
 import { getUserProfile, updateUserProfile } from "@/apiRequests/user";
-import { InputWithIcon } from "@/components/common/InputWithIcon";
-import { showToast } from "@/components/common/Toast";
+import { InputWithIcon } from "@/components/common/input-with-icon";
+import { showToast } from "@/components/common/toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {

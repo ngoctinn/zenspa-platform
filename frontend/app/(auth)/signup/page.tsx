@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { SignUpForm } from "@/components/auth/SignUpForm";
+import { SignUpForm } from "@/components/auth/sign-up-form";
 
 const SignUpPage = () => {
   const router = useRouter();

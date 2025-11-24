@@ -5,9 +5,9 @@ import { LoaderCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { InputWithIcon } from "@/components/common/InputWithIcon";
-import { ResetPasswordSuccessDialog } from "@/components/common/ResetPasswordSuccessDialog";
-import { showToast } from "@/components/common/Toast";
+import { InputWithIcon } from "@/components/common/input-with-icon";
+import { ResetPasswordSuccessDialog } from "@/components/common/reset-password-success-dialog";
+import { showToast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
