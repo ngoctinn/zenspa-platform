@@ -13,9 +13,23 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useEffect, useState } from "react";
 
 export function SheetMenu() {
   const { user } = useAdmin();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <Button className="h-8 lg:hidden" variant="outline" size="icon">
+        <MenuIcon size={20} />
+      </Button>
+    );
+  }
 
   return (
     <Sheet>

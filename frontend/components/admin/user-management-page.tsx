@@ -286,7 +286,7 @@ export function AdminUserManagementPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex flex-1 items-center space-x-2 w-full md:w-auto">
           <div className="relative flex-1 max-w-sm">
@@ -379,7 +379,7 @@ export function AdminUserManagementPage() {
           </DropdownMenu>
           <Button onClick={() => setCreateDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Tạo Tài Khoản
+            Tạo mới
           </Button>
         </div>
       </div>

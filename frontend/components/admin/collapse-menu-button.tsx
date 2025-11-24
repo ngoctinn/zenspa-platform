@@ -66,8 +66,12 @@ export function CollapseMenuButton({
         asChild
       >
         <Button
-          variant={isSubmenuActive ? "default" : "ghost"}
-          className="w-full justify-start h-10"
+          variant="ghost"
+          className={cn(
+            "w-full justify-start h-10",
+            isSubmenuActive &&
+              "bg-primary/10 text-primary border-l-4 border-primary rounded-none rounded-r-md hover:bg-primary/20"
+          )}
         >
           <div className="w-full items-center flex justify-between">
             <div className="flex items-center">
@@ -105,12 +109,12 @@ export function CollapseMenuButton({
         {submenus.map(({ href, label, active }, index) => (
           <Button
             key={index}
-            variant={
-              (active === undefined && pathname === href) || active
-                ? "default"
-                : "ghost"
-            }
-            className="w-full justify-start h-10 mb-1"
+            variant="ghost"
+            className={cn(
+              "w-full justify-start h-10 mb-1",
+              ((active === undefined && pathname === href) || active) &&
+                "bg-primary/10 text-primary border-l-4 border-primary rounded-none rounded-r-md hover:bg-primary/20"
+            )}
             asChild
           >
             <Link href={href}>
@@ -139,8 +143,11 @@ export function CollapseMenuButton({
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
               <Button
-                variant={isSubmenuActive ? "secondary" : "ghost"}
-                className="w-full justify-start h-10 mb-1"
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start h-10 mb-1",
+                  isSubmenuActive && "bg-primary/10 text-primary"
+                )}
               >
                 <div className="w-full items-center flex justify-between">
                   <div className="flex items-center">
@@ -176,7 +183,7 @@ export function CollapseMenuButton({
               className={cn(
                 "cursor-pointer",
                 ((active === undefined && pathname === href) || active) &&
-                  "bg-secondary"
+                  "bg-primary/10 text-primary"
               )}
               href={href}
             >

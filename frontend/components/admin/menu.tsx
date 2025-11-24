@@ -70,14 +70,14 @@ export function Menu({ isOpen, userRoles }: MenuProps) {
                       {(() => {
                         const button = (
                           <Button
-                            variant={
-                              (active === undefined &&
+                            variant="ghost"
+                            className={cn(
+                              "w-full justify-start h-10 mb-1",
+                              ((active === undefined &&
                                 pathname.startsWith(href)) ||
-                              active
-                                ? "default"
-                                : "ghost"
-                            }
-                            className="w-full justify-start h-10 mb-1"
+                                active) &&
+                                "bg-primary/10 text-primary border-l-4 border-primary rounded-none rounded-r-md hover:bg-primary/20"
+                            )}
                             asChild
                           >
                             <Link href={href}>

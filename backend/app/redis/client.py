@@ -13,12 +13,11 @@ class UpstashRestClient:
     """Redis client sử dụng Upstash REST API."""
 
     def __init__(self, base_url: str, token: str):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
-        self.session.headers.update({
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json'
-        })
+        self.session.headers.update(
+            {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+        )
 
     def _request(self, method: str, endpoint: str, **kwargs) -> dict:
         """Thực hiện HTTP request đến Upstash REST API."""
@@ -33,29 +32,30 @@ class UpstashRestClient:
 
     def ping(self) -> str:
         """Test connection."""
-        result = self._request('GET', '/ping')
-        return result.get('result', 'PONG')
+        result = self._request("GET", "/ping")
+        return result.get("result", "PONG")
 
     def get(self, key: str) -> str | None:
         """Get value by key."""
-        result = self._request('GET', f'/get/{key}')
-        return result.get('result')
+        result = self._request("GET", f"/get/{key}")
+        return result.get("result")
 
     def setex(self, key: str, time: int, value: str) -> str | None:
         """Set key with expiration."""
-        data = {"value": value, "ex": time}
-        result = self._request('POST', f'/setex/{key}', json=data)
-        return result.get('result')
+        # Sử dụng format command array để xử lý ký tự đặc biệt trong value an toàn
+        # POST / với body ["SETEX", key, str(time), value]
+        result = self._request("POST", "/", json=["SETEX", key, str(time), value])
+        return result.get("result")
 
     def delete(self, key: str) -> int:
         """Delete key."""
-        result = self._request('POST', f'/del/{key}')
-        return result.get('result', 0)
+        result = self._request("POST", f"/del/{key}")
+        return result.get("result", 0)
 
     def exists(self, key: str) -> int:
         """Check if key exists."""
-        result = self._request('GET', f'/exists/{key}')
-        return result.get('result', 0)
+        result = self._request("GET", f"/exists/{key}")
+        return result.get("result", 0)
 
     def close(self) -> None:
         """Close session."""
@@ -74,14 +74,15 @@ def get_redis_client() -> UpstashRestClient | None:
             if settings.upstash_redis_rest_url and settings.upstash_redis_rest_token:
                 # Use REST API
                 _redis_client = UpstashRestClient(
-                    settings.upstash_redis_rest_url,
-                    settings.upstash_redis_rest_token
+                    settings.upstash_redis_rest_url, settings.upstash_redis_rest_token
                 )
                 # Test kết nối
                 _redis_client.ping()
                 logger.info("✅ Kết nối Upstash REST API thành công")
             else:
-                logger.warning("❌ Thiếu UPSTASH_REDIS_REST_URL hoặc UPSTASH_REDIS_REST_TOKEN")
+                logger.warning(
+                    "❌ Thiếu UPSTASH_REDIS_REST_URL hoặc UPSTASH_REDIS_REST_TOKEN"
+                )
                 _redis_client = None
         except Exception as e:
             logger.error(f"Lỗi khởi tạo Redis REST client: {e}")

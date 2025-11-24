@@ -1,6 +1,7 @@
 "use client";
 
 import { CreateUserRequest } from "@/apiRequests/adminUser";
+import { InputWithIcon } from "@/components/common/input-with-icon";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,9 +19,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, Phone, User } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -91,7 +91,11 @@ export function UserCreateDialog({
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="email@example.com" {...field} />
+                    <InputWithIcon
+                      icon={<Mail className="size-4" />}
+                      placeholder="email@example.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -104,7 +108,11 @@ export function UserCreateDialog({
                 <FormItem>
                   <FormLabel>Họ và tên</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nguyễn Văn A" {...field} />
+                    <InputWithIcon
+                      icon={<User className="size-4" />}
+                      placeholder="Nguyễn Văn A"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -117,7 +125,11 @@ export function UserCreateDialog({
                 <FormItem>
                   <FormLabel>Số điện thoại</FormLabel>
                   <FormControl>
-                    <Input placeholder="0901234567" {...field} />
+                    <InputWithIcon
+                      icon={<Phone className="size-4" />}
+                      placeholder="0901234567"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

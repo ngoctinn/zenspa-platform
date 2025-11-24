@@ -21,6 +21,7 @@ def verify_jwt(token: str) -> dict:
             settings.supabase_jwt_secret,
             algorithms=["HS256"],
             audience="authenticated",
+            leeway=60,  # Cho phép lệch 60s để tránh lỗi iat
         )
     except Exception as e:
         print(f"JWT verify error: {e}")  # Debug log

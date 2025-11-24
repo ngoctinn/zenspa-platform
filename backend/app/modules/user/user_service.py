@@ -57,7 +57,7 @@ async def get_profile_with_roles(
 
     # 1. Thử đọc từ cache
     cached_profile = cache_get(cache_key)
-    if cached_profile:
+    if cached_profile and isinstance(cached_profile, dict):
         logger.debug(f"Cache hit cho hồ sơ người dùng: {cache_key}")
         # Nếu email được truyền vào và khác cache, update cache (optional)
         if email and cached_profile.get("email") != email:

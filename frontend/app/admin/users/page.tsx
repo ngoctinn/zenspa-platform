@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Card, CardContent } from "@/components/ui/card";
 import { Metadata } from "next";
 import Link from "next/link";
 
@@ -32,8 +33,12 @@ export default function AdminUsersPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="mt-6">
-        <AdminUserManagementPage />
+      <div className="mt-4">
+        <Card>
+          <CardContent className="p-6">
+            <AdminUserManagementPage />
+          </CardContent>
+        </Card>
       </div>
     </ContentLayout>
   );
