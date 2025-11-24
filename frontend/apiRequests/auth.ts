@@ -8,7 +8,15 @@ import { User } from "@supabase/supabase-js";
 export const getCurrentUser = async (): Promise<User | null> => {
   const supabase = createSupabaseBrowserClient();
   const { data, error } = await supabase.auth.getUser();
+
   if (error) {
+    // Nếu lỗi là do không có session (người dùng chưa đăng nhập), trả về null thay vì throw error
+    if (
+      error.message === "Auth session missing!" ||
+      error.message.includes("Auth session missing")
+    ) {
+      return null;
+    }
     throw new Error(`Failed to get current user: ${error.message}`);
   }
   return data.user;

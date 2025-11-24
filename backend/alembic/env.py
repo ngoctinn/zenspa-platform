@@ -23,7 +23,7 @@ if config.config_file_name is not None:
 from sqlmodel import SQLModel
 
 # Import all models to register them with SQLModel.metadata
-from app.modules.user.user_models import Profile, UserRoleLink  # noqa: F401
+from app.modules.user.user_models import Profile, UserRoleLink, Role  # noqa: F401
 
 target_metadata = SQLModel.metadata
 

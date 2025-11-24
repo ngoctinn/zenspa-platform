@@ -7,7 +7,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.auth import get_current_user
 from app.core.database import get_async_session
-from .user_models import Profile, Role, UserRoleLink
+from .user_models import Profile, Role, RoleEnum, UserRoleLink
 from .user_schemas import (
     ProfileResponse,
     ProfileUpdate,
@@ -34,11 +34,15 @@ async def require_admin(
 ):
     """Dependency yêu cầu user phải có role admin."""
     user_id = current_user["id"]
-    result = await session.exec(
-        select(UserRoleLink).where(
-            UserRoleLink.user_id == user_id, UserRoleLink.role_name == Role.ADMIN
-        )
+
+    # Join với bảng Role để check tên role
+    statement = (
+        select(UserRoleLink)
+        .join(Role)
+        .where(UserRoleLink.user_id == user_id, Role.name == RoleEnum.ADMIN.value)
     )
+    result = await session.exec(statement)
+
     if not result.first():
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -54,7 +58,9 @@ async def get_user_profile(
 ) -> ProfileResponse:
     """Lấy profile của người dùng hiện tại."""
     user_id = current_user["id"]
-    profile_data = await get_profile_with_roles(session, user_id)
+    email = current_user.get("email")  # Lấy email từ JWT
+
+    profile_data = await get_profile_with_roles(session, user_id, email)
 
     if not profile_data:
         # Tạo lazy nếu chưa tồn tại
@@ -62,12 +68,12 @@ async def get_user_profile(
             session,
             {
                 "id": user_id,
-                "email": current_user["email"],
+                "email": email,  # Truyền email để service xử lý (nhưng không lưu vào DB)
                 "full_name": current_user.get("user_metadata", {}).get("full_name"),
             },
         )
         # Lấy lại thông tin đầy đủ sau khi tạo
-        profile_data = await get_profile_with_roles(session, user_id)
+        profile_data = await get_profile_with_roles(session, user_id, email)
 
     return ProfileResponse(**profile_data)
 
@@ -80,6 +86,8 @@ async def update_user_profile(
 ) -> ProfileResponse:
     """Cập nhật profile của người dùng hiện tại."""
     user_id = current_user["id"]
+    email = current_user.get("email")
+
     profile = await get_profile_by_id(session, user_id)
     if not profile:
         raise HTTPException(
@@ -89,7 +97,7 @@ async def update_user_profile(
     updated_profile = await update_profile(
         session, profile, update_data.model_dump(exclude_unset=True)
     )
-    profile_data = await get_profile_with_roles(session, updated_profile.id)
+    profile_data = await get_profile_with_roles(session, updated_profile.id, email)
     return ProfileResponse(**profile_data)
 
 

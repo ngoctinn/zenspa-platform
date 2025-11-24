@@ -1,0 +1,9 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.autogenerate.compare] Detected added table 'roles'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_roles_name' on '('name',)'
+INFO  [alembic.autogenerate.compare] Detected removed column 'profiles.email'
+INFO  [alembic.autogenerate.compare] Detected added column 'user_role_links.role_id'
+INFO  [alembic.autogenerate.compare] Detected added foreign key (role_id)(id) on table user_role_links
+INFO  [alembic.autogenerate.compare] Detected removed column 'user_role_links.role_name'
+Generating E:\Projects\zenspa-platform\backend\alembic\versions\828137a176a6_refactor_schema.py ...  done

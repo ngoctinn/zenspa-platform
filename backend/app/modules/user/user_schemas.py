@@ -3,18 +3,19 @@
 from datetime import date, datetime
 from pydantic import BaseModel, EmailStr, Field
 from uuid import UUID
-from .user_models import Role
+from .user_models import RoleEnum
 
 
 class ProfileBase(BaseModel):
     """Schema cơ sở cho profile."""
 
-    email: str
+    # Email không lưu trong DB profile nữa, nhưng vẫn dùng trong schema để trả về client
+    email: str | None = None
     full_name: str | None = None
     phone: str | None = Field(None, pattern=r"^\+?\d{10,15}$")
     birth_date: date | None = Field(None, ge=date(1900, 1, 1))
     avatar_url: str | None = None
-    roles: list[str] = ["customer"]  # List of roles from UserRoleLink
+    roles: list[str] = ["customer"]  # List of role names
 
 
 class ProfileResponse(ProfileBase):
@@ -37,11 +38,11 @@ class ProfileUpdate(BaseModel):
 class UpdateRoleRequest(BaseModel):
     """Request để update role."""
 
-    role: Role  # customer, receptionist, technician, admin
+    role: RoleEnum  # customer, receptionist, technician, admin
 
 
 class InviteStaffRequest(BaseModel):
     """Request để mời staff."""
 
     email: EmailStr
-    role: Role  # customer, receptionist, technician, admin
+    role: RoleEnum  # customer, receptionist, technician, admin
